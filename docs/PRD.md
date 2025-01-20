@@ -138,14 +138,17 @@
 2. **解析漸層字串**
 
    - 讀取 `background` 或 `background-image` 字串，例如：
+
      ```css
      linear-gradient(45deg, rgba(255, 0, 0, 1) 0%, rgba(0, 0, 255, 1) 100%)
      ```
+
    - 使用正則表達式將角度、顏色、位置萃取出來。
 
 3. **資料結構化**
 
    - 將擷取結果存成結構化資料：
+
      ```json
      {
        "type": "linear",
@@ -161,6 +164,7 @@
 
    - 依據結構化資料再重新組裝成正式的漸層語法。
    - 若使用者勾選「跨瀏覽器前綴」，則輸出包括：
+
      ```css
      background: -webkit-linear-gradient(...);
      background: -moz-linear-gradient(...);
