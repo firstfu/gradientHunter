@@ -5,7 +5,8 @@
     "description": "A powerful tool for capturing and generating CSS gradients from any website",
     "permissions": [
         "activeTab",
-        "storage"
+        "storage",
+        "scripting"
     ],
     "action": {
         "default_popup": "src/html/popup.html",

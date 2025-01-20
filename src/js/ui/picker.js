@@ -163,4 +163,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "START_PICKING") {
     picker.start();
   }
+  if (message.type === "PING") {
+    sendResponse("PONG");
+    return true;
+  }
 });

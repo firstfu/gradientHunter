@@ -19,6 +19,29 @@ document.addEventListener("DOMContentLoaded", () => {
       // 獲取當前標籤頁
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
+      if (!tab) {
+        throw new Error("No active tab found");
+      }
+
+      // 檢查標籤頁是否可以注入腳本
+      if (!tab.url || tab.url.startsWith("chrome://") || tab.url.startsWith("edge://") || tab.url.startsWith("about:")) {
+        throw new Error("Cannot access this page");
+      }
+
+      // 先檢查 content script 是否已載入
+      try {
+        const response = await chrome.tabs.sendMessage(tab.id, { type: "PING" });
+        if (response !== "PONG") {
+          throw new Error("Content script not ready");
+        }
+      } catch (e) {
+        // 如果 content script 未載入，嘗試注入必要的腳本
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ["src/js/core/domUtils.js", "src/js/core/gradientParser.js", "src/js/ui/picker.js"],
+        });
+      }
+
       // 注入取色模式
       await chrome.tabs.sendMessage(tab.id, { type: "START_PICKING" });
 
@@ -26,6 +49,8 @@ document.addEventListener("DOMContentLoaded", () => {
       window.close();
     } catch (error) {
       console.error("Failed to start picker:", error);
+      // 顯示錯誤訊息給用戶
+      alert(`無法啟動取色器：${error.message}`);
     }
   });
 
