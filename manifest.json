@@ -38,5 +38,15 @@
                 "src/css/picker.css"
             ]
         }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "src/html/editor.html"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
     ]
 }

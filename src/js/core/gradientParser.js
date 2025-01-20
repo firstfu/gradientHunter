@@ -8,7 +8,7 @@ export class GradientParser {
   /**
    * 解析漸層字符串
    * @param {string} gradientStr - 漸層 CSS 字符串
-   * @returns {Object} 解析後的漸層對象
+   * @returns {Object|Array<Object>} 解析後的漸層對象或漸層對象數組
    */
   static parse(gradientStr) {
     if (!gradientStr) {
@@ -18,23 +18,64 @@ export class GradientParser {
     // 移除前綴
     const cleanGradient = gradientStr.replace(/^-webkit-|-moz-|-ms-|-o-/g, "");
 
+    // 檢查是否為多重漸層
+    const multipleGradients = this.splitMultipleGradients(cleanGradient);
+    if (multipleGradients.length > 1) {
+      return multipleGradients.map(gradient => this.parseSingleGradient(gradient));
+    }
+
+    return this.parseSingleGradient(cleanGradient);
+  }
+
+  /**
+   * 解析單個漸層
+   * @param {string} gradientStr - 漸層字符串
+   * @returns {Object} 解析後的漸層對象
+   */
+  static parseSingleGradient(gradientStr) {
     // 確定漸層類型
-    const type = this.getGradientType(cleanGradient);
+    const type = this.getGradientType(gradientStr);
 
     // 提取參數
-    const paramsStr = cleanGradient.match(/\((.*)\)/)?.[1];
+    const paramsStr = gradientStr.match(/\((.*)\)/)?.[1];
     if (!paramsStr) {
       return null;
     }
 
-    // 解析角度和顏色停止點
-    const { angle, colorStops } = this.parseParams(paramsStr, type);
+    // 解析參數
+    const params = this.parseParams(paramsStr, type);
 
     return {
       type,
-      angle,
-      colorStops,
+      ...params,
     };
+  }
+
+  /**
+   * 分割多重漸層
+   * @param {string} gradientStr - 漸層字符串
+   * @returns {Array<string>} 分割後的漸層數組
+   */
+  static splitMultipleGradients(gradientStr) {
+    const gradients = [];
+    let depth = 0;
+    let start = 0;
+    let current = "";
+
+    for (let i = 0; i < gradientStr.length; i++) {
+      const char = gradientStr[i];
+      if (char === "(") depth++;
+      if (char === ")") depth--;
+      current += char;
+
+      if (depth === 0 && char === ")") {
+        gradients.push(current.trim());
+        current = "";
+        start = i + 1;
+      }
+    }
+
+    return gradients.filter(g => g.includes("gradient"));
   }
 
   /**
@@ -57,34 +98,133 @@ export class GradientParser {
    * 解析漸層參數
    * @param {string} paramsStr - 參數字符串
    * @param {string} type - 漸層類型
-   * @returns {Object} 解析後的角度和顏色停止點
+   * @returns {Object} 解析後的參數對象
    */
   static parseParams(paramsStr, type) {
+    let params = {};
+
+    if (type === "linear") {
+      params = this.parseLinearGradientParams(paramsStr);
+    } else if (type === "radial") {
+      params = this.parseRadialGradientParams(paramsStr);
+    } else if (type === "conic") {
+      params = this.parseConicGradientParams(paramsStr);
+    }
+
+    return params;
+  }
+
+  /**
+   * 解析線性漸層參數
+   * @param {string} paramsStr - 參數字符串
+   * @returns {Object} 解析後的參數對象
+   */
+  static parseLinearGradientParams(paramsStr) {
     let angle = null;
     let colorStops = [];
 
-    if (type === "linear") {
-      // 解析角度
-      const angleMatch = paramsStr.match(/^(to\s+(?:top|bottom|left|right)(?:\s+(?:top|bottom|left|right))?|\d+deg)/);
-      if (angleMatch) {
-        angle = angleMatch[0];
-        paramsStr = paramsStr.slice(angleMatch[0].length);
-      }
+    // 解析角度
+    const angleMatch = paramsStr.match(/^(to\s+(?:top|bottom|left|right)(?:\s+(?:top|bottom|left|right))?|\d+deg)/);
+    if (angleMatch) {
+      angle = angleMatch[0];
+      paramsStr = paramsStr.slice(angleMatch[0].length);
     }
 
     // 解析顏色停止點
-    const colorStopRegex = /(?:rgba?\([^)]+\)|hsla?\([^)]+\)|#[a-f0-9]{3,8}|[a-z]+)(?:\s+\d+%)?/gi;
-    let match;
-    while ((match = colorStopRegex.exec(paramsStr)) !== null) {
-      colorStops.push(match[0]);
-    }
+    colorStops = this.parseColorStops(paramsStr);
 
     return { angle, colorStops };
   }
 
   /**
+   * 解析放射狀漸層參數
+   * @param {string} paramsStr - 參數字符串
+   * @returns {Object} 解析後的參數對象
+   */
+  static parseRadialGradientParams(paramsStr) {
+    let shape = null;
+    let size = null;
+    let position = null;
+    let colorStops = [];
+
+    // 解析形狀和大小
+    const shapeMatch = paramsStr.match(/^(circle|ellipse)?\s*(closest-side|closest-corner|farthest-side|farthest-corner|contain|cover)?/);
+    if (shapeMatch) {
+      shape = shapeMatch[1] || "ellipse";
+      size = shapeMatch[2] || "cover";
+      paramsStr = paramsStr.slice(shapeMatch[0].length);
+    }
+
+    // 解析位置
+    const positionMatch = paramsStr.match(/\s*at\s+(center|top|bottom|left|right|(\d+%|\d+px)(\s+(\d+%|\d+px))?)/);
+    if (positionMatch) {
+      position = positionMatch[1];
+      paramsStr = paramsStr.slice(positionMatch[0].length);
+    }
+
+    // 解析顏色停止點
+    colorStops = this.parseColorStops(paramsStr);
+
+    return { shape, size, position, colorStops };
+  }
+
+  /**
+   * 解析錐形漸層參數
+   * @param {string} paramsStr - 參數字符串
+   * @returns {Object} 解析後的參數對象
+   */
+  static parseConicGradientParams(paramsStr) {
+    let angle = null;
+    let position = null;
+    let colorStops = [];
+
+    // 解析角度
+    const angleMatch = paramsStr.match(/^from\s+(\d+deg)/);
+    if (angleMatch) {
+      angle = angleMatch[1];
+      paramsStr = paramsStr.slice(angleMatch[0].length);
+    }
+
+    // 解析位置
+    const positionMatch = paramsStr.match(/\s*at\s+(center|top|bottom|left|right|(\d+%|\d+px)(\s+(\d+%|\d+px))?)/);
+    if (positionMatch) {
+      position = positionMatch[1];
+      paramsStr = paramsStr.slice(positionMatch[0].length);
+    }
+
+    // 解析顏色停止點
+    colorStops = this.parseColorStops(paramsStr);
+
+    return { angle, position, colorStops };
+  }
+
+  /**
+   * 解析顏色停止點
+   * @param {string} str - 顏色停止點字符串
+   * @returns {Array<Object>} 顏色停止點數組
+   */
+  static parseColorStops(str) {
+    const colorStops = [];
+    const regex = /(?:rgba?\([^)]+\)|hsla?\([^)]+\)|#[a-f0-9]{3,8}|[a-z]+)(?:\s+\d+%)?/gi;
+    let match;
+
+    while ((match = regex.exec(str)) !== null) {
+      const [fullMatch] = match;
+      const colorMatch = fullMatch.match(/(rgba?\([^)]+\)|hsla?\([^)]+\)|#[a-f0-9]{3,8}|[a-z]+)/i);
+      const positionMatch = fullMatch.match(/\d+%/);
+
+      colorStops.push({
+        color: colorMatch[0],
+        position: positionMatch ? positionMatch[0] : null,
+      });
+    }
+
+    return colorStops;
+  }
+
+  /**
    * 生成標準化的 CSS 漸層代碼
-   * @param {Object} gradientObj - 漸層對象
+   * @param {Object|Array<Object>} gradientObj - 漸層對象或漸層對象數組
    * @returns {string} CSS 代碼
    */
   static generateCSS(gradientObj) {
@@ -92,29 +232,53 @@ export class GradientParser {
       return "";
     }
 
-    const { type, angle, colorStops } = gradientObj;
-    let css = "";
+    // 處理多重漸層
+    if (Array.isArray(gradientObj)) {
+      return gradientObj.map(obj => this.generateSingleGradientCSS(obj)).join(", ");
+    }
+
+    return this.generateSingleGradientCSS(gradientObj);
+  }
+
+  /**
+   * 生成單個漸層的 CSS 代碼
+   * @param {Object} gradientObj - 漸層對象
+   * @returns {string} CSS 代碼
+   */
+  static generateSingleGradientCSS(gradientObj) {
+    const { type, angle, shape, size, position, colorStops } = gradientObj;
 
     switch (type) {
       case "linear":
-        css = `linear-gradient(${angle ? angle + ", " : ""}${colorStops.join(", ")})`;
-        break;
+        return `linear-gradient(${angle ? angle + ", " : ""}${this.formatColorStops(colorStops)})`;
       case "radial":
-        css = `radial-gradient(${colorStops.join(", ")})`;
-        break;
+        let radialParams = [];
+        if (shape && shape !== "ellipse") radialParams.push(shape);
+        if (size && size !== "cover") radialParams.push(size);
+        if (position) radialParams.push(`at ${position}`);
+        return `radial-gradient(${radialParams.length ? radialParams.join(" ") + ", " : ""}${this.formatColorStops(colorStops)})`;
       case "conic":
-        css = `conic-gradient(${colorStops.join(", ")})`;
-        break;
+        let conicParams = [];
+        if (angle) conicParams.push(`from ${angle}`);
+        if (position) conicParams.push(`at ${position}`);
+        return `conic-gradient(${conicParams.length ? conicParams.join(" ") + ", " : ""}${this.formatColorStops(colorStops)})`;
       default:
         return "";
     }
+  }
 
-    return css;
+  /**
+   * 格式化顏色停止點
+   * @param {Array<Object>} colorStops - 顏色停止點數組
+   * @returns {string} 格式化後的顏色停止點字符串
+   */
+  static formatColorStops(colorStops) {
+    return colorStops.map(stop => `${stop.color}${stop.position ? " " + stop.position : ""}`).join(", ");
   }
 
   /**
    * 生成帶瀏覽器前綴的完整 CSS 代碼
-   * @param {Object} gradientObj - 漸層對象
+   * @param {Object|Array<Object>} gradientObj - 漸層對象或漸層對象數組
    * @returns {string} 完整的 CSS 代碼
    */
   static generateFullCSS(gradientObj) {
@@ -123,6 +287,8 @@ export class GradientParser {
       return "";
     }
 
-    return `background: -webkit-${standardCSS};\n` + `background: -moz-${standardCSS};\n` + `background: -ms-${standardCSS};\n` + `background: ${standardCSS};`;
+    return [`-webkit-background: ${standardCSS};`, `-moz-background: ${standardCSS};`, `-ms-background: ${standardCSS};`, `background: ${standardCSS};`].join(
+      "\n"
+    );
   }
 }

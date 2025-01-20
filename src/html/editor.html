@@ -1,0 +1,131 @@
+<!--
+ * @ Author: 1891
+ * @ Create Time: 2024-03-21
+ * @ Description: 漸層編輯器
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gradient Editor - Gradient Hunter</title>
+    <link rel="stylesheet" href="../css/editor.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1>Gradient Editor</h1>
+      </header>
+
+      <main class="main">
+        <div class="editor-container">
+          <!-- 預覽區域 -->
+          <div class="preview-section">
+            <div id="gradientPreview" class="gradient-preview"></div>
+          </div>
+
+          <!-- 編輯器控制區 -->
+          <div class="controls-section">
+            <!-- 漸層類型選擇 -->
+            <div class="control-group">
+              <label>Gradient Type</label>
+              <div class="button-group">
+                <button id="linearType" class="btn btn-type active">Linear</button>
+                <button id="radialType" class="btn btn-type">Radial</button>
+                <button id="conicType" class="btn btn-type">Conic</button>
+              </div>
+            </div>
+
+            <!-- 線性漸層控制 -->
+            <div id="linearControls" class="control-group">
+              <label>Angle</label>
+              <div class="angle-control">
+                <input type="range" id="angleSlider" min="0" max="360" value="90" />
+                <input type="number" id="angleInput" min="0" max="360" value="90" />
+                <span>deg</span>
+              </div>
+            </div>
+
+            <!-- 放射狀漸層控制 -->
+            <div id="radialControls" class="control-group hidden">
+              <label>Shape</label>
+              <select id="shapeSelect">
+                <option value="circle">Circle</option>
+                <option value="ellipse">Ellipse</option>
+              </select>
+              <label>Size</label>
+              <select id="sizeSelect">
+                <option value="farthest-corner">Farthest Corner</option>
+                <option value="closest-side">Closest Side</option>
+                <option value="closest-corner">Closest Corner</option>
+                <option value="farthest-side">Farthest Side</option>
+              </select>
+            </div>
+
+            <!-- 錐形漸層控制 -->
+            <div id="conicControls" class="control-group hidden">
+              <label>Start Angle</label>
+              <div class="angle-control">
+                <input type="range" id="conicAngleSlider" min="0" max="360" value="0" />
+                <input type="number" id="conicAngleInput" min="0" max="360" value="0" />
+                <span>deg</span>
+              </div>
+            </div>
+
+            <!-- 顏色停止點編輯器 -->
+            <div class="control-group">
+              <label>Color Stops</label>
+              <div id="colorStopsEditor" class="color-stops-editor">
+                <div class="color-stops-track">
+                  <div class="color-stops-gradient"></div>
+                </div>
+                <div class="color-stops-thumbs"></div>
+              </div>
+              <div class="color-stop-controls">
+                <button id="addColorStop" class="btn btn-secondary">Add Color Stop</button>
+                <button id="removeColorStop" class="btn btn-secondary" disabled>Remove Selected</button>
+              </div>
+            </div>
+
+            <!-- 選中的顏色停止點編輯 -->
+            <div id="selectedStopEditor" class="control-group">
+              <label>Selected Stop</label>
+              <div class="color-stop-editor">
+                <input type="color" id="colorInput" />
+                <input type="number" id="positionInput" min="0" max="100" step="1" />
+                <span>%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CSS 代碼輸出 -->
+          <div class="code-section">
+            <div class="code-header">
+              <h3>Generated CSS</h3>
+              <div class="code-options">
+                <label>
+                  <input type="checkbox" id="prefixToggle" checked />
+                  Include Prefixes
+                </label>
+                <button id="copyCode" class="btn btn-secondary">
+                  <span class="icon">📋</span>
+                  Copy CSS
+                </button>
+              </div>
+            </div>
+            <pre id="cssOutput" class="css-code"></pre>
+          </div>
+        </div>
+
+        <!-- 常用模板 -->
+        <div class="templates-section">
+          <h3>Templates</h3>
+          <div id="templateGrid" class="template-grid">
+            <!-- 模板將由 JavaScript 動態生成 -->
+          </div>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="../js/ui/editor.js"></script>
+  </body>
+</html>

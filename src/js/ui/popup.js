@@ -6,10 +6,12 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const startPickerBtn = document.getElementById("startPicker");
+  const openEditorBtn = document.getElementById("openEditor");
   const resultContainer = document.getElementById("resultContainer");
   const gradientPreview = document.getElementById("gradientPreview");
   const cssCode = document.getElementById("cssCode");
   const copyCodeBtn = document.getElementById("copyCode");
+  const editInEditorBtn = document.getElementById("editInEditor");
 
   // 開始取色
   startPickerBtn.addEventListener("click", async () => {
@@ -24,6 +26,16 @@ document.addEventListener("DOMContentLoaded", () => {
       window.close();
     } catch (error) {
       console.error("Failed to start picker:", error);
+    }
+  });
+
+  // 打開編輯器
+  openEditorBtn.addEventListener("click", async () => {
+    try {
+      const editorURL = chrome.runtime.getURL("src/html/editor.html");
+      await chrome.tabs.create({ url: editorURL });
+    } catch (error) {
+      console.error("Failed to open editor:", error);
     }
   });
 
@@ -44,6 +56,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // 在編輯器中打開
+  editInEditorBtn.addEventListener("click", async () => {
+    try {
+      const gradient = gradientPreview.style.background;
+      const editorURL = chrome.runtime.getURL("src/html/editor.html");
+      const url = `${editorURL}?gradient=${encodeURIComponent(gradient)}`;
+      await chrome.tabs.create({ url });
+    } catch (error) {
+      console.error("Failed to open in editor:", error);
+    }
+  });
+
   // 監聽來自 content script 的消息
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "GRADIENT_PICKED") {
@@ -57,6 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // 顯示結果
       resultContainer.classList.remove("hidden");
+      editInEditorBtn.classList.remove("hidden");
     }
   });
 });
