@@ -1,0 +1,113 @@
+/**
+ * @ Author: 1891
+ * @ Create Time: 2024-03-21
+ * @ Description: 漸層獵人插件彈出視窗樣式
+ */
+
+:root {
+  --primary-color: #4a90e2;
+  --secondary-color: #2c3e50;
+  --background-color: #ffffff;
+  --text-color: #333333;
+  --border-radius: 8px;
+  --spacing-unit: 8px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 320px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.container {
+  padding: calc(var(--spacing-unit) * 2);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: calc(var(--spacing-unit) * 2);
+}
+
+.header h1 {
+  font-size: 1.5rem;
+  color: var(--secondary-color);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 2);
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-unit);
+  padding: calc(var(--spacing-unit) * 1.5);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #357abd;
+}
+
+.btn-secondary {
+  background-color: #f1f1f1;
+  color: var(--secondary-color);
+}
+
+.btn-secondary:hover {
+  background-color: #e1e1e1;
+}
+
+.result-container {
+  border: 1px solid #e1e1e1;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.gradient-preview {
+  height: 100px;
+  width: 100%;
+}
+
+.code-container {
+  padding: calc(var(--spacing-unit) * 2);
+  background-color: #f8f9fa;
+}
+
+.css-code {
+  font-family: "Fira Code", "Consolas", monospace;
+  font-size: 0.9rem;
+  margin-bottom: var(--spacing-unit);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.footer {
+  margin-top: calc(var(--spacing-unit) * 2);
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.hidden {
+  display: none;
+}

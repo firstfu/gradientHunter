@@ -1,0 +1,42 @@
+{
+    "manifest_version": 3,
+    "name": "Gradient Hunter",
+    "version": "1.0.0",
+    "description": "A powerful tool for capturing and generating CSS gradients from any website",
+    "permissions": [
+        "activeTab",
+        "storage"
+    ],
+    "action": {
+        "default_popup": "src/html/popup.html",
+        "default_icon": {
+            "16": "assets/icons/icon16.png",
+            "48": "assets/icons/icon48.png",
+            "128": "assets/icons/icon128.png"
+        }
+    },
+    "icons": {
+        "16": "assets/icons/icon16.png",
+        "48": "assets/icons/icon48.png",
+        "128": "assets/icons/icon128.png"
+    },
+    "background": {
+        "service_worker": "src/js/background.js",
+        "type": "module"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "src/js/core/domUtils.js",
+                "src/js/core/gradientParser.js",
+                "src/js/ui/picker.js"
+            ],
+            "css": [
+                "src/css/picker.css"
+            ]
+        }
+    ]
+}

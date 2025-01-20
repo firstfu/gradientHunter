@@ -1,0 +1,44 @@
+<!--
+ * @ Author: 1891
+ * @ Create Time: 2024-03-21
+ * @ Description: 漸層獵人插件彈出視窗
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gradient Hunter</title>
+    <link rel="stylesheet" href="../css/popup.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1>Gradient Hunter</h1>
+      </header>
+
+      <main class="main">
+        <button id="startPicker" class="btn btn-primary">
+          <span class="icon">🎯</span>
+          Start Picking
+        </button>
+
+        <div id="resultContainer" class="result-container hidden">
+          <div id="gradientPreview" class="gradient-preview"></div>
+          <div class="code-container">
+            <pre id="cssCode" class="css-code"></pre>
+            <button id="copyCode" class="btn btn-secondary">
+              <span class="icon">📋</span>
+              Copy CSS
+            </button>
+          </div>
+        </div>
+      </main>
+
+      <footer class="footer">
+        <span>Click "Start Picking" to begin</span>
+      </footer>
+    </div>
+    <script type="module" src="../js/ui/popup.js"></script>
+  </body>
+</html>
