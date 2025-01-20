@@ -21,17 +21,24 @@ class DOMUtils {
    */
   static hasGradient(element) {
     try {
+      console.log("Checking element for gradient:", element.tagName, {
+        id: element.id,
+        class: element.className,
+      });
+
       const computedStyle = this.getComputedStyles(element);
 
       // 檢查所有可能包含漸層的屬性
-      const propsToCheck = [
-        computedStyle.background,
-        computedStyle.backgroundImage,
-        element.style.background,
-        element.style.backgroundImage,
-        // 檢查行內樣式
-        element.getAttribute("style"),
-      ].filter(Boolean); // 過濾掉 null/undefined
+      const backgroundProps = {
+        background: computedStyle.background,
+        backgroundImage: computedStyle.backgroundImage,
+        // 添加更多可能的屬性
+        backgroundColor: computedStyle.backgroundColor,
+        backgroundClip: computedStyle.backgroundClip,
+        backgroundOrigin: computedStyle.backgroundOrigin,
+      };
+
+      console.log("Element background properties:", backgroundProps);
 
       // 檢查所有可能的漸層類型（包含前綴）
       const gradientTypes = [
@@ -48,12 +55,57 @@ class DOMUtils {
         "repeating-linear-gradient",
         "repeating-radial-gradient",
         "repeating-conic-gradient",
+        // 添加 url() 格式的漸層檢測
+        "gradient",
+        "-webkit-gradient",
       ];
 
-      // 如果任何屬性包含任何類型的漸層，返回 true
-      return propsToCheck.some(prop => gradientTypes.some(type => prop && prop.includes(type)));
+      // 檢查每個背景屬性
+      for (const [propName, propValue] of Object.entries(backgroundProps)) {
+        if (!propValue || propValue === "none") continue;
+
+        console.log(`Checking ${propName}:`, propValue);
+
+        // 檢查是否包含任何漸層類型
+        for (const type of gradientTypes) {
+          if (propValue.includes(type)) {
+            console.log(`Found gradient in ${propName}:`, {
+              property: propName,
+              value: propValue,
+              type: type,
+            });
+            return true;
+          }
+        }
+
+        // 特殊檢查：檢查 CSS 函數格式
+        if (propValue.includes("(") && propValue.includes(")")) {
+          console.log(`Found potential CSS function in ${propName}:`, propValue);
+        }
+      }
+
+      // 如果沒有找到漸層，記錄完整的元素信息
+      console.log("No gradient found. Full element details:", {
+        tag: element.tagName,
+        id: element.id,
+        classes: element.className,
+        styles: backgroundProps,
+        computedStyle: {
+          display: computedStyle.display,
+          position: computedStyle.position,
+          visibility: computedStyle.visibility,
+        },
+      });
+
+      return false;
     } catch (error) {
       console.error("Error checking gradient:", error);
+      console.error("Error details:", {
+        element: element,
+        errorName: error.name,
+        errorMessage: error.message,
+        errorStack: error.stack,
+      });
       return false;
     }
   }

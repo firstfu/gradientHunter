@@ -7,13 +7,15 @@
 class GradientPicker {
   constructor() {
     this.isActive = false;
-    this.currentHoverElement = null;
-    this.currentCleanup = null;
+    this.isSelecting = false;
+    this.startPoint = null;
+    this.selectionBox = null;
+    this.selectedElements = new Set();
 
     // 綁定事件處理器
-    this.handleMouseOver = this.handleMouseOver.bind(this);
-    this.handleMouseOut = this.handleMouseOut.bind(this);
-    this.handleClick = this.handleClick.bind(this);
+    this.handleMouseDown = this.handleMouseDown.bind(this);
+    this.handleMouseMove = this.handleMouseMove.bind(this);
+    this.handleMouseUp = this.handleMouseUp.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
 
     // 初始化時檢查依賴
@@ -39,6 +41,60 @@ class GradientPicker {
   }
 
   /**
+   * 創建選擇框
+   */
+  createSelectionBox() {
+    const box = document.createElement("div");
+    box.style.position = "fixed";
+    box.style.border = "1px solid #4a90e2";
+    box.style.backgroundColor = "rgba(74, 144, 226, 0.1)";
+    box.style.pointerEvents = "none";
+    box.style.zIndex = "999999";
+    return box;
+  }
+
+  /**
+   * 更新選擇框
+   */
+  updateSelectionBox(startX, startY, currentX, currentY) {
+    const left = Math.min(startX, currentX);
+    const top = Math.min(startY, currentY);
+    const width = Math.abs(currentX - startX);
+    const height = Math.abs(currentY - startY);
+
+    this.selectionBox.style.left = `${left}px`;
+    this.selectionBox.style.top = `${top}px`;
+    this.selectionBox.style.width = `${width}px`;
+    this.selectionBox.style.height = `${height}px`;
+  }
+
+  /**
+   * 獲取選擇區域內的元素
+   */
+  getElementsInSelection(startX, startY, endX, endY) {
+    const elements = [];
+    const left = Math.min(startX, endX);
+    const top = Math.min(startY, endY);
+    const right = Math.max(startX, endX);
+    const bottom = Math.max(startY, endY);
+
+    // 獲取所有元素
+    const allElements = document.elementsFromPoint(left + (right - left) / 2, top + (bottom - top) / 2);
+
+    for (const element of allElements) {
+      const rect = element.getBoundingClientRect();
+      // 檢查元素是否在選擇區域內
+      if (rect.left < right && rect.right > left && rect.top < bottom && rect.bottom > top) {
+        if (window.DOMUtils && window.DOMUtils.hasGradient(element)) {
+          elements.push(element);
+        }
+      }
+    }
+
+    return elements;
+  }
+
+  /**
    * 啟動取色器
    */
   start() {
@@ -56,9 +112,9 @@ class GradientPicker {
       document.body.style.cursor = "crosshair";
 
       // 添加事件監聽
-      document.addEventListener("mouseover", this.handleMouseOver, true);
-      document.addEventListener("mouseout", this.handleMouseOut, true);
-      document.addEventListener("click", this.handleClick, true);
+      document.addEventListener("mousedown", this.handleMouseDown, true);
+      document.addEventListener("mousemove", this.handleMouseMove, true);
+      document.addEventListener("mouseup", this.handleMouseUp, true);
       document.addEventListener("keydown", this.handleKeyPress, true);
 
       console.log("Gradient picker started successfully");
@@ -84,18 +140,20 @@ class GradientPicker {
       document.body.style.cursor = "";
 
       // 移除事件監聽
-      document.removeEventListener("mouseover", this.handleMouseOver, true);
-      document.removeEventListener("mouseout", this.handleMouseOut, true);
-      document.removeEventListener("click", this.handleClick, true);
+      document.removeEventListener("mousedown", this.handleMouseDown, true);
+      document.removeEventListener("mousemove", this.handleMouseMove, true);
+      document.removeEventListener("mouseup", this.handleMouseUp, true);
       document.removeEventListener("keydown", this.handleKeyPress, true);
 
-      // 清理當前效果
-      if (this.currentCleanup) {
-        this.currentCleanup();
-        this.currentCleanup = null;
+      // 清理選擇框
+      if (this.selectionBox && this.selectionBox.parentNode) {
+        this.selectionBox.parentNode.removeChild(this.selectionBox);
       }
+      this.selectionBox = null;
+      this.startPoint = null;
+      this.isSelecting = false;
+      this.selectedElements.clear();
 
-      this.currentHoverElement = null;
       console.log("Gradient picker stopped successfully");
     } catch (error) {
       console.error("Error stopping picker:", error);
@@ -103,120 +161,106 @@ class GradientPicker {
   }
 
   /**
-   * 處理滑鼠懸停
-   * @param {MouseEvent} event
+   * 處理滑鼠按下
    */
-  handleMouseOver(event) {
-    try {
-      event.stopPropagation();
-      const element = event.target;
-
-      // 如果元素相同，不重複處理
-      if (element === this.currentHoverElement) {
-        return;
-      }
-
-      // 清理之前的效果
-      if (this.currentCleanup) {
-        this.currentCleanup();
-        this.currentCleanup = null;
-      }
-
-      // 檢查是否有漸層
-      if (window.DOMUtils && window.DOMUtils.hasGradient(element)) {
-        console.log("Found gradient element:", element);
-        this.currentHoverElement = element;
-        this.currentCleanup = window.DOMUtils.addHoverEffect(element);
-      }
-    } catch (error) {
-      console.error("Error handling mouseover:", error);
-    }
-  }
-
-  /**
-   * 處理滑鼠移出
-   * @param {MouseEvent} event
-   */
-  handleMouseOut(event) {
-    try {
-      event.stopPropagation();
-
-      if (this.currentCleanup) {
-        this.currentCleanup();
-        this.currentCleanup = null;
-      }
-
-      this.currentHoverElement = null;
-    } catch (error) {
-      console.error("Error handling mouseout:", error);
-    }
-  }
-
-  /**
-   * 處理點擊事件
-   * @param {MouseEvent} event
-   */
-  handleClick(event) {
+  handleMouseDown(event) {
     try {
       event.preventDefault();
       event.stopPropagation();
 
-      if (!this.currentHoverElement) {
-        console.log("No element selected");
-        return;
-      }
+      this.isSelecting = true;
+      this.startPoint = { x: event.clientX, y: event.clientY };
 
-      const gradientStr = window.DOMUtils.getGradient(this.currentHoverElement);
-      if (!gradientStr) {
-        console.log("No gradient found on selected element");
-        return;
-      }
+      // 創建選擇框
+      this.selectionBox = this.createSelectionBox();
+      document.body.appendChild(this.selectionBox);
+      this.updateSelectionBox(event.clientX, event.clientY, event.clientX, event.clientY);
+    } catch (error) {
+      console.error("Error handling mousedown:", error);
+    }
+  }
 
-      console.log("Found gradient:", gradientStr);
+  /**
+   * 處理滑鼠移動
+   */
+  handleMouseMove(event) {
+    try {
+      if (!this.isSelecting || !this.startPoint) return;
 
-      // 解析漸層
-      const gradientObj = window.GradientParser.parse(gradientStr);
-      if (!gradientObj) {
-        console.error("Failed to parse gradient:", gradientStr);
-        return;
-      }
+      event.preventDefault();
+      event.stopPropagation();
 
-      // 生成 CSS
-      const css = window.GradientParser.generateCSS(gradientObj);
-      console.log("Generated CSS:", css);
+      // 更新選擇框
+      this.updateSelectionBox(this.startPoint.x, this.startPoint.y, event.clientX, event.clientY);
+    } catch (error) {
+      console.error("Error handling mousemove:", error);
+    }
+  }
 
-      // 發送消息到彈出視窗
-      chrome.runtime.sendMessage(
-        {
-          type: "GRADIENT_PICKED",
-          data: {
-            gradient: gradientStr,
-            css: css,
-          },
-        },
-        response => {
-          if (chrome.runtime.lastError) {
-            console.error("Error sending message:", chrome.runtime.lastError);
-          } else {
-            console.log("Message sent successfully:", response);
-          }
+  /**
+   * 處理滑鼠放開
+   */
+  handleMouseUp(event) {
+    try {
+      if (!this.isSelecting) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      // 獲取選擇區域內的元素
+      const elements = this.getElementsInSelection(this.startPoint.x, this.startPoint.y, event.clientX, event.clientY);
+
+      // 收集所有漸層
+      const gradients = [];
+      for (const element of elements) {
+        const gradient = window.DOMUtils.getGradient(element);
+        if (gradient) {
+          gradients.push(gradient);
         }
-      );
+      }
+
+      // 如果找到漸層，發送消息
+      if (gradients.length > 0) {
+        chrome.runtime.sendMessage(
+          {
+            type: "GRADIENT_PICKED",
+            data: {
+              gradients: gradients,
+              css: gradients.map(g => `background: ${g};`).join("\n"),
+            },
+          },
+          response => {
+            if (chrome.runtime.lastError) {
+              console.error("Error sending message:", chrome.runtime.lastError);
+            } else {
+              console.log("Message sent successfully:", response);
+            }
+          }
+        );
+      } else {
+        console.log("No gradients found in selection");
+      }
+
+      // 清理選擇框
+      if (this.selectionBox && this.selectionBox.parentNode) {
+        this.selectionBox.parentNode.removeChild(this.selectionBox);
+      }
+      this.selectionBox = null;
+      this.startPoint = null;
+      this.isSelecting = false;
 
       // 停止取色器
       this.stop();
     } catch (error) {
-      console.error("Error handling click:", error);
+      console.error("Error handling mouseup:", error);
     }
   }
 
   /**
    * 處理鍵盤事件
-   * @param {KeyboardEvent} event
    */
   handleKeyPress(event) {
     try {
-      // ESC 鍵停止取色器
       if (event.key === "Escape") {
         console.log("Escape pressed, stopping picker");
         this.stop();

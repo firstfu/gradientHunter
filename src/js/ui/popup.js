@@ -12,6 +12,49 @@ document.addEventListener("DOMContentLoaded", () => {
   const cssCode = document.getElementById("cssCode");
   const copyCodeBtn = document.getElementById("copyCode");
   const editInEditorBtn = document.getElementById("editInEditor");
+  const prevBtn = gradientPreview.querySelector(".prev");
+  const nextBtn = gradientPreview.querySelector(".next");
+  const gradientCount = gradientPreview.querySelector(".gradient-count");
+
+  let currentGradients = [];
+  let currentIndex = 0;
+
+  // 更新漸層預覽
+  function updatePreview() {
+    if (currentGradients.length === 0) {
+      gradientCount.textContent = "No gradients selected";
+      gradientPreview.style.background = "none";
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+      return;
+    }
+
+    gradientPreview.style.background = currentGradients[currentIndex];
+    gradientCount.textContent = `Gradient ${currentIndex + 1} of ${currentGradients.length}`;
+
+    // 更新導航按鈕狀態
+    prevBtn.disabled = currentIndex === 0;
+    nextBtn.disabled = currentIndex === currentGradients.length - 1;
+
+    // 更新 CSS 代碼
+    cssCode.textContent = currentGradients.map(g => `background: ${g};`).join("\n");
+  }
+
+  // 上一個漸層
+  prevBtn.addEventListener("click", () => {
+    if (currentIndex > 0) {
+      currentIndex--;
+      updatePreview();
+    }
+  });
+
+  // 下一個漸層
+  nextBtn.addEventListener("click", () => {
+    if (currentIndex < currentGradients.length - 1) {
+      currentIndex++;
+      updatePreview();
+    }
+  });
 
   // 開始取色
   startPickerBtn.addEventListener("click", async () => {
@@ -80,9 +123,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // 在編輯器中打開
   editInEditorBtn.addEventListener("click", async () => {
     try {
-      const gradient = gradientPreview.style.background;
       const editorURL = chrome.runtime.getURL("src/html/editor.html");
-      const url = `${editorURL}?gradient=${encodeURIComponent(gradient)}`;
+      const url = `${editorURL}?gradients=${encodeURIComponent(JSON.stringify(currentGradients))}`;
       await chrome.tabs.create({ url });
     } catch (error) {
       console.error("Failed to open in editor:", error);
@@ -92,17 +134,17 @@ document.addEventListener("DOMContentLoaded", () => {
   // 監聽來自 content script 的消息
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "GRADIENT_PICKED") {
-      const { gradient, css } = message.data;
+      const { gradients } = message.data;
 
-      // 更新預覽
-      gradientPreview.style.background = gradient;
+      if (gradients && gradients.length > 0) {
+        currentGradients = gradients;
+        currentIndex = 0;
+        updatePreview();
 
-      // 更新代碼
-      cssCode.textContent = css;
-
-      // 顯示結果
-      resultContainer.classList.remove("hidden");
-      editInEditorBtn.classList.remove("hidden");
+        // 顯示結果
+        resultContainer.classList.remove("hidden");
+        editInEditorBtn.classList.remove("hidden");
+      }
     }
   });
 });

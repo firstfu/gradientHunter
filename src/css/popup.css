@@ -89,9 +89,55 @@ body {
   overflow: hidden;
 }
 
-.gradient-preview {
-  height: 100px;
+.gradients-container {
+  position: relative;
   width: 100%;
+}
+
+.gradient-preview {
+  height: 120px;
+  width: 100%;
+  position: relative;
+  transition: background 0.3s ease;
+}
+
+.gradient-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: calc(var(--spacing-unit));
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.gradient-nav {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: calc(var(--spacing-unit) / 2);
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.gradient-nav:hover {
+  opacity: 1;
+}
+
+.gradient-nav:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.gradient-count {
+  flex: 1;
+  text-align: center;
+  margin: 0 calc(var(--spacing-unit));
 }
 
 .code-container {

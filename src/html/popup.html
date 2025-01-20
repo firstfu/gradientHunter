@@ -30,7 +30,15 @@
         </div>
 
         <div id="resultContainer" class="result-container hidden">
-          <div id="gradientPreview" class="gradient-preview"></div>
+          <div class="gradients-container">
+            <div id="gradientPreview" class="gradient-preview">
+              <div class="gradient-info">
+                <span class="gradient-count">0 gradients selected</span>
+                <button class="gradient-nav prev" title="Previous gradient">◀</button>
+                <button class="gradient-nav next" title="Next gradient">▶</button>
+              </div>
+            </div>
+          </div>
           <div class="code-container">
             <pre id="cssCode" class="css-code"></pre>
             <div class="button-group">
@@ -48,7 +56,7 @@
       </main>
 
       <footer class="footer">
-        <span>Click "Start Picking" to begin</span>
+        <span>Draw a selection box to pick gradients</span>
       </footer>
     </div>
     <script type="module" src="../js/ui/popup.js"></script>
