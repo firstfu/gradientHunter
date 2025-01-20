@@ -28,44 +28,25 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("Cannot access this page");
       }
 
-      // 嘗試與 content script 通訊
-      try {
-        await chrome.tabs.sendMessage(tab.id, { type: "PING" });
-      } catch (e) {
-        console.log("Injecting scripts...");
-
-        // 注入所需的腳本
-        await chrome.scripting.executeScript({
-          target: { tabId: tab.id },
-          files: ["src/js/core/domUtils.js", "src/js/core/gradientParser.js", "src/js/ui/picker.js"],
-        });
-
-        // 注入 CSS
-        await chrome.scripting.insertCSS({
-          target: { tabId: tab.id },
-          files: ["src/css/picker.css"],
-        });
-
-        // 等待腳本載入
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // 再次嘗試通訊
-        try {
-          await chrome.tabs.sendMessage(tab.id, { type: "PING" });
-        } catch (error) {
-          throw new Error("Failed to initialize content scripts");
-        }
-      }
-
       // 開始取色模式
-      await chrome.tabs.sendMessage(tab.id, { type: "START_PICKING" });
+      const response = await chrome.tabs.sendMessage(tab.id, { type: "START_PICKING" });
+
+      if (!response || !response.success) {
+        throw new Error("Failed to start picker: " + (response?.error || "Unknown error"));
+      }
 
       // 關閉彈出視窗
       window.close();
     } catch (error) {
       console.error("Failed to start picker:", error);
-      // 顯示錯誤訊息給用戶
-      alert(`無法啟動取色器：${error.message}\n請重新載入頁面後再試。`);
+
+      if (error.message.includes("Cannot establish connection")) {
+        // 如果是連接錯誤，可能需要重新載入頁面
+        alert("請重新載入頁面後再試。\n如果問題持續發生，請確保已允許擴充功能存取網站。");
+      } else {
+        // 其他錯誤
+        alert(`無法啟動取色器：${error.message}`);
+      }
     }
   });
 
