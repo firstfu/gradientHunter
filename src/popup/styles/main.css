@@ -1,0 +1,39 @@
+/**
+ * @ Author: 1891
+ * @ Create Time: 2024-01-20
+ * @ Description: 漸層獵人 Chrome 插件全局樣式
+ */
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+  background: #fff;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
