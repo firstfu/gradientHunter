@@ -6,7 +6,11 @@
     "permissions": [
         "activeTab",
         "storage",
-        "scripting"
+        "scripting",
+        "tabs"
+    ],
+    "host_permissions": [
+        "<all_urls>"
     ],
     "action": {
         "default_popup": "src/html/popup.html",
@@ -37,13 +41,17 @@
             ],
             "css": [
                 "src/css/picker.css"
-            ]
+            ],
+            "run_at": "document_end"
         }
     ],
     "web_accessible_resources": [
         {
             "resources": [
-                "src/html/editor.html"
+                "src/html/editor.html",
+                "src/js/core/domUtils.js",
+                "src/js/core/gradientParser.js",
+                "src/js/ui/picker.js"
             ],
             "matches": [
                 "<all_urls>"

@@ -4,9 +4,6 @@
  * @ Description: 漸層取色器邏輯
  */
 
-import { DOMUtils } from "../core/domUtils.js";
-import { GradientParser } from "../core/gradientParser.js";
-
 class GradientPicker {
   constructor() {
     this.isActive = false;
@@ -83,9 +80,9 @@ class GradientPicker {
     }
 
     // 檢查是否有漸層
-    if (DOMUtils.hasGradient(element)) {
+    if (window.DOMUtils && window.DOMUtils.hasGradient(element)) {
       this.currentHoverElement = element;
-      this.currentCleanup = DOMUtils.addHoverEffect(element);
+      this.currentCleanup = window.DOMUtils.addHoverEffect(element);
     }
   }
 
@@ -116,19 +113,19 @@ class GradientPicker {
       return;
     }
 
-    const gradientStr = DOMUtils.getGradient(this.currentHoverElement);
+    const gradientStr = window.DOMUtils.getGradient(this.currentHoverElement);
     if (!gradientStr) {
       return;
     }
 
     // 解析漸層
-    const gradientObj = GradientParser.parse(gradientStr);
+    const gradientObj = window.GradientParser.parse(gradientStr);
     if (!gradientObj) {
       return;
     }
 
     // 生成 CSS
-    const css = GradientParser.generateFullCSS(gradientObj);
+    const css = window.GradientParser.generateCSS(gradientObj);
 
     // 發送消息到彈出視窗
     chrome.runtime.sendMessage({
@@ -160,11 +157,18 @@ const picker = new GradientPicker();
 
 // 監聽來自彈出視窗的消息
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === "START_PICKING") {
-    picker.start();
-  }
+  console.log("Received message:", message);
+
   if (message.type === "PING") {
+    console.log("Received PING, sending PONG");
     sendResponse("PONG");
+    return true; // 重要：確保異步回應能夠正常工作
+  }
+
+  if (message.type === "START_PICKING") {
+    console.log("Starting picker...");
+    picker.start();
+    sendResponse({ success: true });
     return true;
   }
 });

@@ -4,7 +4,7 @@
  * @ Description: DOM 操作工具類
  */
 
-export class DOMUtils {
+class DOMUtils {
   /**
    * 獲取元素的計算樣式
    * @param {HTMLElement} element - 目標元素
@@ -70,3 +70,6 @@ export class DOMUtils {
     }
   }
 }
+
+// 將類別掛載到全局
+window.DOMUtils = DOMUtils;

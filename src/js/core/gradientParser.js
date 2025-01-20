@@ -4,7 +4,7 @@
  * @ Description: 漸層解析工具類
  */
 
-export class GradientParser {
+class GradientParser {
   /**
    * 解析漸層字符串
    * @param {string} gradientStr - 漸層 CSS 字符串
@@ -292,3 +292,6 @@ export class GradientParser {
     );
   }
 }
+
+// 將類別掛載到全局
+window.GradientParser = GradientParser;
