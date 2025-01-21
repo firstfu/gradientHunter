@@ -13,7 +13,7 @@
         "<all_urls>"
     ],
     "action": {
-        "default_popup": "src/html/popup.html",
+        "default_popup": "src/popup/index.html",
         "default_icon": {
             "16": "assets/icons/icon16.png",
             "48": "assets/icons/icon48.png",
@@ -26,7 +26,7 @@
         "128": "assets/icons/icon128.png"
     },
     "background": {
-        "service_worker": "src/js/background.js",
+        "service_worker": "src/background/index.js",
         "type": "module"
     },
     "content_scripts": [
@@ -35,12 +35,10 @@
                 "<all_urls>"
             ],
             "js": [
-                "src/js/core/domUtils.js",
-                "src/js/core/gradientParser.js",
-                "src/js/ui/picker.js"
+                "src/content/picker.js"
             ],
             "css": [
-                "src/css/picker.css"
+                "src/content/picker.css"
             ],
             "run_at": "document_end"
         }
@@ -48,10 +46,7 @@
     "web_accessible_resources": [
         {
             "resources": [
-                "src/html/editor.html",
-                "src/js/core/domUtils.js",
-                "src/js/core/gradientParser.js",
-                "src/js/ui/picker.js"
+                "src/content/*"
             ],
             "matches": [
                 "<all_urls>"

@@ -1,0 +1,50 @@
+<!--
+ * @ Author: 1891
+ * @ Create Time: 2024-01-21
+ * @ Description: 漸層獵手插件的網頁內容選取器
+ -->
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="picker.css" />
+  </head>
+  <body>
+    <!-- 選取器懸浮提示 -->
+    <div class="picker-tooltip">
+      <div class="tooltip-content">
+        <div class="element-info">
+          <span class="element-tag">&lt;div&gt;</span>
+          <span class="element-class">.hero-section</span>
+        </div>
+        <div class="gradient-preview">
+          <div class="preview-box"></div>
+          <span class="gradient-value">linear-gradient(180deg, #FF5F6D 0%, #FFC371 100%)</span>
+        </div>
+      </div>
+      <div class="tooltip-actions">
+        <button class="action-btn pick-btn" title="選取此元素">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+          選取
+        </button>
+        <button class="action-btn cancel-btn" title="取消選取">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+          取消
+        </button>
+      </div>
+    </div>
+
+    <!-- 選取框 -->
+    <div class="picker-overlay">
+      <div class="overlay-border overlay-border-top"></div>
+      <div class="overlay-border overlay-border-right"></div>
+      <div class="overlay-border overlay-border-bottom"></div>
+      <div class="overlay-border overlay-border-left"></div>
+    </div>
+  </body>
+</html>
