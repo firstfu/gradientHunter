@@ -46,6 +46,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveButton = document.querySelector('.tool-btn[title="儲存"]');
   const settingsButton = document.querySelector('.tool-btn[title="設定"]');
 
+  console.log("==============================");
+  console.log("pickButton", pickButton);
+  console.log("==============================");
+
   // 綁定選取按鈕事件
   pickButton.addEventListener("click", () => {
     chrome.runtime.sendMessage({ type: "START_PICKING" });
@@ -55,6 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // 綁定複製按鈕事件
   document.querySelector(".copy-btn").addEventListener("click", () => {
     const code = document.querySelector(".code-block code").textContent;
+    console.log("code:", code);
     navigator.clipboard.writeText(code);
   });
 

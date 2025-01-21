@@ -29,51 +29,74 @@ chrome.tabs.onRemoved.addListener(tabId => {
 
 // 監聽來自彈出窗口的消息
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log("==============================");
+  console.log("==============================");
+  console.log("request", request);
+  console.log("==============================");
+  console.log("==============================");
+
   if (request.type === "START_PICKING") {
-    // 在當前標籤頁注入選取器
-    chrome.tabs.query({ active: true, currentWindow: true }, async ([tab]) => {
-      if (tab) {
-        try {
-          // 檢查是否已經注入
-          if (!injectedTabs.has(tab.id)) {
-            // 注入 CSS
-            await chrome.scripting.insertCSS({
-              target: { tabId: tab.id },
-              files: ["src/content/picker.css"],
-            });
+    // 使用 Promise 處理異步操作
+    (async () => {
+      try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-            // 注入 JavaScript
-            await chrome.scripting.executeScript({
-              target: { tabId: tab.id },
-              files: ["src/content/picker.js"],
-            });
-
-            // 記錄已注入
-            injectedTabs.add(tab.id);
-          }
-
-          // 發送開始選取消息
-          await chrome.tabs.sendMessage(tab.id, { type: "START_PICKING" });
-          sendResponse({ success: true });
-        } catch (error) {
-          console.error("Failed to inject picker:", error);
-          sendResponse({ success: false, error: error.message });
+        if (!tab) {
+          sendResponse({ success: false, error: "No active tab found" });
+          return;
         }
+
+        // 檢查是否已經注入
+        if (!injectedTabs.has(tab.id)) {
+          // 注入 CSS
+          await chrome.scripting.insertCSS({
+            target: { tabId: tab.id },
+            files: ["src/content/picker.css"],
+          });
+
+          // 注入 JavaScript
+          await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            files: ["src/content/picker.js"],
+          });
+
+          // 記錄已注入
+          injectedTabs.add(tab.id);
+        }
+
+        // 發送開始選取消息
+        await chrome.tabs.sendMessage(tab.id, { type: "START_PICKING" });
+        sendResponse({ success: true });
+      } catch (error) {
+        console.error("Failed to inject picker:", error);
+        sendResponse({ success: false, error: error.message });
       }
-    });
-    return true; // 表示會異步回應
+    })();
+
+    return true; // 保持消息通道開啟
   } else if (request.type === "GRADIENT_PICKED") {
     // 儲存選取的漸層
     lastPickedGradient = request.gradient;
 
-    // 通知彈出窗口更新 UI
-    chrome.runtime.sendMessage({
-      type: "UPDATE_GRADIENT",
-      gradient: request.gradient,
-    });
-    sendResponse({ success: true });
+    // 使用 Promise 處理異步消息發送
+    (async () => {
+      try {
+        // 通知彈出窗口更新 UI
+        await chrome.runtime.sendMessage({
+          type: "UPDATE_GRADIENT",
+          gradient: request.gradient,
+        });
+        sendResponse({ success: true });
+      } catch (error) {
+        console.error("Failed to update gradient:", error);
+        sendResponse({ success: false, error: error.message });
+      }
+    })();
+
+    return true; // 保持消息通道開啟
   } else if (request.type === "GET_LAST_GRADIENT") {
-    // 返回最後選取的漸層
+    // 同步操作可以直接回應
     sendResponse({ gradient: lastPickedGradient });
+    return false; // 不需要保持通道開啟
   }
 });
