@@ -1,101 +1,99 @@
-# Gradient Picker - 網頁漸層取色與 CSS 生成工具
+# Gradient Hunter - 網頁漸層獵手
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
 
-一款強大的 Chrome 擴充功能，專門用於擷取網頁上的漸層背景，並自動生成對應的 CSS 代碼。無論是設計師或前端工程師，都能透過這個工具快速取得漸層資訊，大幅提升開發效率。
+一款專業的 Chrome 擴充功能，讓你輕鬆擷取網頁上的漸層背景，並即時生成對應的 CSS 代碼。無論是設計師或開發者，都能透過這個工具快速取得漸層資訊，提升工作效率。
 
-## 🌈 主要功能
+## ✨ 核心特色
 
-- 一鍵式漸層擷取，支援多種漸層類型（linear、radial）
-- 自動生成跨瀏覽器相容的 CSS 代碼
-- 即時預覽與編輯漸層參數
-- 支援多種色彩格式（HEX、RGBA、HSLA）
-- 一鍵複製 CSS 代碼到剪貼簿
+- 🎯 一鍵式漸層擷取
+- 🎨 支援線性漸層（Linear）與環形漸層（Radial）
+- 📋 自動生成跨瀏覽器相容的 CSS 代碼
+- 👀 即時預覽與參數調整
+- 🌈 支援多種色彩格式（HEX、RGB、HSL）
 
-## 🚀 快速開始
+## 🚀 開始使用
 
 ### 安裝方式
 
-1. 從 Chrome Web Store 安裝（即將推出）
+1. 從 Chrome Web Store 安裝（即將上架）
 2. 手動安裝：
 
    ```bash
-   # 克隆專案
-   git clone https://github.com/your-username/gradient-picker.git
+   # 下載專案
+   git clone https://github.com/your-username/gradient-hunter.git
 
-   # 安裝依賴
+   # 安裝相依套件
    npm install
 
    # 建置專案
    npm run build
    ```
 
-   然後在 Chrome 擴充功能頁面開啟「開發人員模式」，選擇「載入未封裝項目」並選取建置後的 dist 資料夾。
+   接著在 Chrome 瀏覽器：
 
-### 使用方式
+   1. 開啟 `chrome://extensions/`
+   2. 啟用「開發人員模式」
+   3. 點擊「載入未封裝項目」
+   4. 選取專案中的 `dist` 資料夾
 
-1. 點擊瀏覽器工具列的擴充功能圖示
-2. 按下「啟動取漸層模式」按鈕
-3. 將滑鼠移至想要擷取漸層的網頁元素上
-4. 點擊該元素，即可看到完整的漸層資訊
-5. 可選擇直接複製 CSS 代碼，或進行進一步的調整
+### 使用步驟
 
-## 🛠 技術規格
+1. 點擊瀏覽器工具列的 Gradient Hunter 圖示
+2. 按下「開始選取」按鈕
+3. 將滑鼠移至目標元素上
+4. 點擊以擷取漸層資訊
+5. 在彈出視窗中檢視並複製 CSS 代碼
+
+## 🛠 技術特點
 
 - 基於 Chrome Extension Manifest V3
-- 使用 TypeScript 開發
-- 支援主流瀏覽器前綴自動生成
-- 完整的漸層解析與重建演算法
+- TypeScript 開發，型別安全
+- 支援主流瀏覽器前綴
+- 精準的漸層解析演算法
 
-## 🎯 適用場景
+## 🎯 使用情境
 
-- 設計師需要快速取得網頁上的漸層參考
-- 前端工程師優化開發流程，快速實現設計稿
-- 教學情境中展示漸層原理與 CSS 實作
+- 設計研究：快速取得網頁設計參考
+- 開發效率：即時獲取漸層 CSS 代碼
+- 學習教學：理解漸層原理與實作方式
 
-## 📝 開發計畫
+## 📝 開發規劃
 
-### 當前版本 (v1.0.0)
+### v1.0.0（當前版本）
 
-- [x] 基礎漸層擷取功能
+- [x] 基礎漸層擷取
 - [x] CSS 代碼生成
-- [x] 簡易預覽介面
+- [x] 即時預覽功能
+- [x] 多種色彩格式支援
 
-### 即將推出
+### 未來版本
 
 - [ ] 視覺化漸層編輯器
-- [ ] 多重漸層支援
-- [ ] 常用漸層範本
-- [ ] 雲端同步功能
+- [ ] 漸層預設範本
+- [ ] 歷史記錄功能
+- [ ] 雲端同步支援
 
-## 🤝 貢獻指南
+## 🤝 參與貢獻
 
-我們歡迎任何形式的貢獻！如果你想要參與開發：
+歡迎協助改善這個專案！
 
-1. Fork 這個專案
-2. 建立你的功能分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交你的修改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 開啟一個 Pull Request
+1. Fork 專案
+2. 建立分支：`git checkout -b feature/YourFeature`
+3. 提交變更：`git commit -m 'Add YourFeature'`
+4. 推送分支：`git push origin feature/YourFeature`
+5. 建立 Pull Request
 
 ## 📄 授權條款
 
-本專案使用 MIT 授權 - 詳見 [LICENSE](LICENSE) 檔案
+本專案採用 MIT 授權 - 詳見 [LICENSE](LICENSE) 檔案
 
-## 🙏 鳴謝
+## 📮 聯絡方式
 
-- 感謝所有提供意見與建議的使用者
-- 特別感謝參與開發的貢獻者們
-
-## 📧 聯絡我們
-
-如有任何問題或建議，歡迎：
-
-- 開啟 Issue
-- 發送 Pull Request
-- 寄信至：[your-email@example.com](mailto:your-email@example.com)
+- GitHub Issues
+- 電子郵件：[your-email@example.com](mailto:your-email@example.com)
 
 ---
 
-**Made with ❤️ by [Your Team Name]**
+**Made with ❤️ by Gradient Hunter Team**
