@@ -19,6 +19,7 @@ if (window.gradientPicker) {
 
     init() {
       // 檢查是否已經初始化
+      console.log("檢查是否已經初始化");
       if (document.querySelector(".picker-tooltip")) {
         this.tooltip = document.querySelector(".picker-tooltip");
         this.overlay = document.querySelector(".picker-overlay");
@@ -38,6 +39,8 @@ if (window.gradientPicker) {
     }
 
     createTooltip() {
+      console.log("創建懸浮提示元素");
+
       // 創建懸浮提示元素
       this.tooltip = document.createElement("div");
       this.tooltip.className = "picker-tooltip";
@@ -219,7 +222,7 @@ if (window.gradientPicker) {
   // 將實例保存到全局變量
   window.gradientPicker = new GradientPicker();
 
-  // 監聽來自擴充功能的消息
+  // TODO: 監聽來自擴充功能的消息
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type === "START_PICKING") {
       window.gradientPicker.activate();

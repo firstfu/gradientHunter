@@ -52,14 +52,16 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("pickButton", pickButton);
   console.log("==============================");
 
-  // 綁定選取按鈕事件
+  // TODO: 綁定選取按鈕事件
   pickButton.addEventListener("click", () => {
+    console.log("開始選取");
     chrome.runtime.sendMessage({ type: "START_PICKING" });
     window.close();
   });
 
   // 綁定複製按鈕事件
   document.querySelector(".copy-btn").addEventListener("click", () => {
+    console.log("複製代碼");
     const code = document.querySelector(".code-block code").textContent;
     console.log("code:", code);
     navigator.clipboard.writeText(code);
@@ -67,6 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 檢查是否有最近選取的漸層
   chrome.runtime.sendMessage({ type: "GET_LAST_GRADIENT" }, response => {
+    console.log("檢查是否有最近選取的漸層");
     if (response && response.gradient) {
       updateUI(response.gradient);
     }
