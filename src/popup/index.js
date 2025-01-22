@@ -6,6 +6,7 @@
 
 // 更新 UI 顯示
 function updateUI(gradient) {
+  console.log("更新 UI 顯示");
   if (!gradient) return;
 
   // 更新預覽區域
@@ -41,6 +42,7 @@ function updateUI(gradient) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("選取");
   // 獲取按鈕元素
   const pickButton = document.querySelector('.tool-btn[title="開始選取"]');
   const saveButton = document.querySelector('.tool-btn[title="儲存"]');
