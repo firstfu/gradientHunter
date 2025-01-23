@@ -175,10 +175,6 @@ async function handleGradientSelected(request) {
   // 儲存選取的漸層
   lastPickedGradient = request.gradient;
 
-  console.log("===================================");
-  console.log("[Background] 處理漸層選取完成 Gradient selected:", lastPickedGradient);
-  console.log("===================================");
-
   // 直接發送消息到 popup
   try {
     await chrome.runtime.sendMessage({
