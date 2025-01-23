@@ -192,7 +192,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px;
+  padding: 8px;
   background: var(--gh-surface);
   border-radius: var(--gh-radius-sm);
   transition: var(--gh-transition);
@@ -202,28 +202,40 @@
   background: var(--gh-surface-hover);
 }
 
-.gh-color-preview {
-  width: 24px;
-  height: 24px;
-  border-radius: var(--gh-radius-sm);
-  border: 1px solid var(--gh-border);
-  transition: var(--gh-transition);
+.gh-color-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
 }
 
-.gh-color-value,
-.gh-stop-position {
-  padding: 6px 8px;
+.gh-color-preview {
+  position: absolute;
+  left: 8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid var(--gh-border);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.gh-color-value {
+  width: 100%;
+  padding: 6px 8px 6px 32px;
   border: 1px solid var(--gh-border);
   border-radius: var(--gh-radius-sm);
   font-size: 13px;
+  font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
   color: var(--gh-text);
   background: var(--gh-bg);
   transition: var(--gh-transition);
 }
 
 .gh-color-value:hover,
-.gh-stop-position:hover {
+.gh-color-value:focus {
   border-color: var(--gh-primary-light);
+  outline: none;
 }
 
 /* 代碼輸出 */
