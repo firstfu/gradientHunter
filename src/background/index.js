@@ -41,6 +41,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       });
     return true; // 保持消息通道開啟
   } else if (request.type === "GRADIENT_PICKED") {
+    console.log("收到 GRADIENT_PICKED 消息");
     handleGradientPicked(request)
       .then(response => {
         sendResponse(response);
@@ -74,26 +75,57 @@ async function handleStartPicking() {
       throw new Error("No active tab found");
     }
 
-    // 檢查腳本是否已注入
-    if (!injectedTabs.has(tab.id)) {
-      // 注入 content script
+    // 檢查是否是特殊頁面
+    if (tab.url.startsWith("chrome://") || tab.url.startsWith("chrome-extension://") || tab.url.startsWith("edge://")) {
+      throw new Error("Cannot inject scripts into browser internal pages");
+    }
+
+    // 嘗試注入 content script（即使在 manifest 中已配置，某些情況下可能需要重新注入）
+    try {
+      console.log("嘗試注入 content script");
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         files: ["src/content/picker.js"],
       });
 
-      // 注入 CSS
       await chrome.scripting.insertCSS({
         target: { tabId: tab.id },
         files: ["src/content/picker.css"],
       });
-
-      // 標記該標籤頁已注入腳本
-      injectedTabs.add(tab.id);
+      console.log("Content script 注入成功");
+    } catch (injectError) {
+      console.log("Content script 可能已經存在:", injectError);
     }
 
-    // 發送開始選取消息到 content script
-    await chrome.tabs.sendMessage(tab.id, { type: "ACTIVATE_PICKER" });
+    // 等待較長時間確保 content script 完全加載
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // 使用 Promise 包裝消息發送，添加超時處理
+    const sendMessageWithTimeout = async () => {
+      const timeout = 2000; // 2 秒超時
+      const startTime = Date.now();
+
+      while (Date.now() - startTime < timeout) {
+        try {
+          console.log("嘗試發送 ACTIVATE_PICKER 消息到 tab:", tab.id);
+          const response = await chrome.tabs.sendMessage(tab.id, {
+            type: "ACTIVATE_PICKER",
+            timestamp: Date.now(), // 添加時間戳防止重複處理
+          });
+
+          console.log("收到 content script 回應:", response);
+          return true;
+        } catch (error) {
+          console.log("發送消息失敗，等待重試:", error);
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
+      throw new Error("發送消息超時");
+    };
+
+    await sendMessageWithTimeout();
+    console.log("ACTIVATE_PICKER 消息發送成功");
+
     return { success: true };
   } catch (error) {
     console.error("Error in handleStartPicking:", error);
@@ -103,6 +135,8 @@ async function handleStartPicking() {
 
 // 處理漸層選取完成的請求
 async function handleGradientPicked(request) {
+  console.log("處理漸層選取完成的請求");
+
   lastPickedGradient = request.gradient;
 
   // 通知彈出窗口更新 UI

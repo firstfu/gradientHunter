@@ -4,6 +4,8 @@
  * @ Description: 漸層獵手插件的選取器腳本
  */
 
+console.log("Content script 開始加載");
+
 // 檢查是否已經初始化
 if (window.gradientPicker) {
   console.log("Gradient picker already initialized");
@@ -230,14 +232,57 @@ if (window.gradientPicker) {
 
   // 將實例保存到全局變量
   window.gradientPicker = new GradientPicker();
-
-  // 消息流程 2: Background -> Content
-  // 監聽來自背景腳本的 ACTIVATE_PICKER 消息
-  // 當收到消息時，激活選取器
-  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.type === "ACTIVATE_PICKER") {
-      window.gradientPicker.activate();
-    }
-    return true;
-  });
 }
+
+// 消息流程 2: Background -> Content
+// 監聽來自背景腳本的 ACTIVATE_PICKER 消息
+// 當收到消息時，激活選取器
+console.log("設置消息監聽器");
+
+// 用於追蹤已處理的消息
+const processedMessages = new Set();
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log("收到消息:", request);
+
+  // 檢查是否已處理過該消息
+  if (request.timestamp && processedMessages.has(request.timestamp)) {
+    console.log("消息已經處理過，跳過");
+    sendResponse({ status: "already_processed" });
+    return true;
+  }
+
+  if (request.type === "ACTIVATE_PICKER") {
+    console.log("收到激活選取器消息");
+
+    try {
+      if (window.gradientPicker) {
+        console.log("找到 gradientPicker 實例，開始激活");
+        window.gradientPicker.activate();
+
+        // 記錄已處理的消息
+        if (request.timestamp) {
+          processedMessages.add(request.timestamp);
+          // 清理舊的時間戳（保留最近 5 分鐘的記錄）
+          const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+          processedMessages.forEach(timestamp => {
+            if (timestamp < fiveMinutesAgo) {
+              processedMessages.delete(timestamp);
+            }
+          });
+        }
+
+        sendResponse({ status: "success" });
+      } else {
+        console.error("gradientPicker 實例不存在");
+        sendResponse({ status: "error", message: "gradientPicker not found" });
+      }
+    } catch (error) {
+      console.error("激活選取器時發生錯誤:", error);
+      sendResponse({ status: "error", message: error.message });
+    }
+  }
+  return true;
+});
+
+console.log("Content script 加載完成");

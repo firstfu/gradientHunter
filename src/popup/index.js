@@ -77,6 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // 當收到新的漸層數據時，更新 UI 顯示
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       if (request.type === "UPDATE_GRADIENT" && request.gradient) {
+        console.log("更新 UI 顯示");
         updateUI(request.gradient);
       }
     });
