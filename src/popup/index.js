@@ -113,14 +113,23 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
 
-    // 監聽來自背景腳本的消息
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    // 設置消息監聽器
+    const messageListener = (request, sender, sendResponse) => {
       console.log("[Popup] Received message:", request);
 
       if (request.type === "UPDATE_GRADIENT" && request.gradient) {
         updateUI(request.gradient);
         sendResponse({ success: true });
       }
+      return true; // 保持消息通道開啟
+    };
+
+    // 註冊消息監聽器
+    chrome.runtime.onMessage.addListener(messageListener);
+
+    // 當 popup 關閉時移除監聽器
+    window.addEventListener("unload", () => {
+      chrome.runtime.onMessage.removeListener(messageListener);
     });
 
     console.log("[Popup] Initialization complete");

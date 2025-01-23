@@ -121,13 +121,19 @@ async function handleGradientSelected(request) {
 
   // 通知 popup 更新 UI
   try {
-    await chrome.runtime.sendMessage({
-      type: "UPDATE_GRADIENT",
-      gradient: lastPickedGradient,
-    });
-    console.log("[Background] Update gradient message sent to popup");
+    // 檢查 popup 是否開啟
+    const views = chrome.extension.getViews({ type: "popup" });
+    if (views.length > 0) {
+      await chrome.runtime.sendMessage({
+        type: "UPDATE_GRADIENT",
+        gradient: lastPickedGradient,
+      });
+      console.log("[Background] Update gradient message sent to popup");
+    } else {
+      console.log("[Background] Popup is not open, skipping message");
+    }
   } catch (error) {
-    console.log("[Background] Popup might be closed, ignoring error:", error);
+    console.log("[Background] Error sending message to popup:", error);
   }
 
   return { success: true };
