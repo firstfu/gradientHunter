@@ -6,13 +6,48 @@
 
 /* 全局樣式 */
 :root {
-  --gh-primary: #6366f1;
+  /* 主題色 */
+  --gh-primary: #1a1a1a;
   --gh-primary-hover: #4f46e5;
+  --gh-success: #22c55e;
+  --gh-warning: #f59e0b;
+  --gh-error: #ef4444;
+
+  /* 中性色 */
   --gh-bg: #ffffff;
-  --gh-text: #1f2937;
+  --gh-surface: #f9fafb;
   --gh-border: #e5e7eb;
-  --gh-radius: 12px;
-  --gh-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --gh-text: #1f2937;
+  --gh-text-secondary: #6b7280;
+
+  /* 深色主題 */
+  --gh-dark-bg: #1f2937;
+  --gh-dark-surface: #374151;
+  --gh-dark-border: #4b5563;
+  --gh-dark-text: #f9fafb;
+  --gh-dark-text-secondary: #9ca3af;
+
+  /* 尺寸 */
+  --gh-radius: 8px;
+  --gh-radius-sm: 6px;
+  --gh-radius-lg: 16px;
+
+  /* 效果 */
+  --gh-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --gh-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --gh-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* 動畫 */
+  --gh-transition: all 0.2s ease;
+}
+
+/* 深色主題 */
+[data-theme="dark"] {
+  --gh-bg: var(--gh-dark-bg);
+  --gh-surface: var(--gh-dark-surface);
+  --gh-border: var(--gh-dark-border);
+  --gh-text: var(--gh-dark-text);
+  --gh-text-secondary: var(--gh-dark-text-secondary);
 }
 
 /* 根容器 */
@@ -24,7 +59,7 @@
   height: 100%;
   pointer-events: none;
   z-index: 2147483645;
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: var(--gh-text);
   line-height: 1.5;
 }
@@ -40,15 +75,7 @@
   box-shadow: var(--gh-shadow);
   z-index: 2147483647;
   pointer-events: auto;
-  user-select: none;
-  padding: 1.5rem;
-  max-width: 400px;
-  width: 100%;
-  transition: all 0.3s ease;
-}
-
-.gh-toolbar:hover {
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  overflow: hidden;
 }
 
 /* 工具列頭部 */
@@ -56,16 +83,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--gh-border);
 }
 
 .gh-toolbar-header h1 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 16px;
   font-weight: 600;
-  background: linear-gradient(135deg, var(--gh-primary), var(--gh-primary-hover));
-  -webkit-background-clip: text;
-  color: transparent;
+  color: var(--gh-primary);
 }
 
 .gh-tools {
@@ -74,110 +100,95 @@
 }
 
 .gh-tool-btn {
-  padding: 0.5rem;
+  padding: 4px;
   border: none;
   background: transparent;
   color: var(--gh-text);
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: var(--gh-transition);
 }
 
 .gh-tool-btn:hover {
-  background: #f3f4f6;
-  transform: scale(1.05);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 /* 主要內容區 */
 .gh-main-content {
   padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
 }
 
-/* 預覽區域 */
-.gh-preview-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: #f9fafb;
-  border-radius: var(--gh-radius);
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-}
-
+/* 漸層預覽 */
 .gh-gradient-preview {
-  height: 120px;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  transition: all 0.3s ease;
+  height: 180px;
+  border-radius: var(--gh-radius);
+  margin-bottom: 16px;
   background: linear-gradient(180deg, #ff5f6d 0%, #ffc371 100%);
 }
 
+/* 漸層資訊 */
 .gh-gradient-info {
   display: flex;
   justify-content: space-between;
-  font-size: 0.875rem;
-  color: #6b7280;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--gh-border);
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: var(--gh-text);
 }
 
 /* 顏色停駐點列表 */
 .gh-color-stops {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 16px;
 }
 
 .gh-color-stop {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
+  gap: 8px;
+  margin-bottom: 12px;
   background: #f9fafb;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.gh-color-stop:hover {
-  background: #f3f4f6;
-  transform: translateX(4px);
+  padding: 8px;
+  border-radius: 4px;
 }
 
 .gh-color-preview {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
   border: 2px solid white;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
 }
 
 .gh-color-value,
 .gh-stop-position {
-  background: white;
+  padding: 6px 8px;
   border: 1px solid var(--gh-border);
-  border-radius: 6px;
-  padding: 0.5rem;
-  font-size: 0.875rem;
-  font-family: "SF Mono", "Courier New", monospace;
-  transition: all 0.2s ease;
+  border-radius: 4px;
+  background: white;
+  font-size: 14px;
+  color: var(--gh-text);
+  font-family: "SF Mono", Consolas, monospace;
 }
 
-.gh-color-value:hover,
-.gh-stop-position:hover {
-  border-color: var(--gh-primary);
+.gh-color-value {
+  flex: 1;
+  min-width: 80px;
+  margin-right: 4px;
 }
 
-/* 代碼輸出區 */
+.gh-stop-position {
+  width: 45px;
+  text-align: right;
+}
+
+/* CSS 代碼區 */
 .gh-code-output {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: #1e1e1e;
+  background: #f9fafb;
   border-radius: var(--gh-radius);
   overflow: hidden;
 }
@@ -186,54 +197,59 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1rem;
-  background: #2d2d2d;
-  border-bottom: 1px solid #404040;
+  padding: 8px 12px;
+  background: #f3f4f6;
+  border-bottom: 1px solid var(--gh-border);
 }
 
 .gh-code-header span {
-  color: #e5e7eb;
-  font-size: 0.875rem;
+  font-size: 14px;
+  color: var(--gh-text);
 }
 
 .gh-copy-btn {
-  padding: 0.5rem;
+  padding: 4px;
   border: none;
   background: transparent;
-  color: #e5e7eb;
+  color: var(--gh-text);
   cursor: pointer;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
+  opacity: 0.6;
+  transition: var(--gh-transition);
 }
 
 .gh-copy-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: scale(1.05);
+  opacity: 1;
 }
 
 .gh-code-block {
   margin: 0;
-  padding: 1rem;
-  color: #e5e7eb;
-  font-family: "SF Mono", "Courier New", monospace;
-  font-size: 0.875rem;
-  line-height: 1.7;
+  padding: 12px;
+  font-family: "SF Mono", Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--gh-text);
+  white-space: pre;
 }
 
 /* 選取框 */
 .picker-overlay {
   position: fixed;
-  z-index: 999999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
 }
 
 .overlay-border {
   position: absolute;
   background: var(--gh-primary);
-  transition: all 0.2s ease;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.picker-overlay.active .overlay-border {
+  opacity: 1;
 }
 
 .overlay-border-top,
@@ -250,46 +266,31 @@
 
 .overlay-border-top {
   top: 0;
-  left: 0;
 }
+
 .overlay-border-right {
-  top: 0;
   right: 0;
 }
+
 .overlay-border-bottom {
   bottom: 0;
-  left: 0;
 }
+
 .overlay-border-left {
-  top: 0;
   left: 0;
-}
-
-/* 動畫效果 */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.gh-toolbar {
-  animation: fadeIn 0.3s ease-out;
 }
 
 /* 響應式設計 */
 @media (max-width: 480px) {
   .gh-toolbar {
-    max-width: 100%;
-    margin: 1rem;
-    padding: 1rem;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    border-radius: var(--gh-radius) var(--gh-radius) 0 0;
   }
 
   .gh-gradient-preview {
-    height: 100px;
+    height: 140px;
   }
 }

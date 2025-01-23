@@ -323,6 +323,12 @@
         document.body.style.cursor = "crosshair";
         this.overlay.style.display = "block";
         this.toolbar.style.display = "flex";
+
+        // 添加動效類名
+        requestAnimationFrame(() => {
+          this.toolbar.classList.add("active");
+          this.overlay.classList.add("active");
+        });
       }
     }
 
@@ -332,8 +338,17 @@
         this.isActive = false;
         document.removeEventListener("click", this.boundClickHandler, true);
         document.body.style.cursor = "";
-        this.overlay.style.display = "none";
-        this.toolbar.style.display = "none";
+
+        // 移除動效類名並等待動畫完成
+        this.toolbar.classList.remove("active");
+        this.overlay.classList.remove("active");
+
+        setTimeout(() => {
+          if (!this.isActive) {
+            this.overlay.style.display = "none";
+            this.toolbar.style.display = "none";
+          }
+        }, 300); // 等待動畫完成
 
         if (this.selectedElement) {
           this.selectedElement.classList.remove("gradient-hunter-highlight");
