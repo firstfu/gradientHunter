@@ -171,7 +171,8 @@
 
         if (this.hasGradient(element)) {
           this.selectedElement = element;
-          console.log("[GradientPicker] 找到漸層元素:", element.cloneNode(true));
+          const gradientInfo = this.extractGradientInfo(element);
+          this.updateGradientUI(gradientInfo);
           element.classList.add("gradient-hunter-highlight");
           return;
         }
@@ -204,14 +205,91 @@
     // 提取漸層資訊
     extractGradientInfo(element) {
       const style = window.getComputedStyle(element);
+      const backgroundImage = style.backgroundImage;
+
+      // 解析漸層資訊
+      let gradient = {
+        type: "linear", // 預設為線性漸層
+        angle: "180deg", // 預設角度
+        stops: [],
+      };
+
+      if (backgroundImage.includes("gradient")) {
+        const match = backgroundImage.match(/(\w+-gradient)\((.*)\)/);
+        if (match) {
+          // 確定漸層類型
+          gradient.type = match[1].split("-")[0];
+
+          // 解析參數
+          const params = match[2].split(/,(?![^(]*\))/);
+
+          // 檢查第一個參數是否為角度
+          if (params[0].includes("deg")) {
+            gradient.angle = params[0].trim();
+            params.shift();
+          }
+
+          // 解析顏色停駐點
+          gradient.stops = params.map(stop => {
+            const [color, position] = stop.trim().split(/\s+/);
+            return {
+              color: color,
+              position: position || null,
+            };
+          });
+        }
+      }
+
       return {
-        gradient: style.backgroundImage,
+        gradient: gradient,
+        originalValue: backgroundImage,
         element: {
           tagName: element.tagName,
           className: element.className,
           id: element.id,
         },
       };
+    }
+
+    // 更新 UI 顯示漸層資訊
+    updateGradientUI(gradientInfo) {
+      const previewSection = document.querySelector(".gh-preview-section");
+      const colorStops = document.querySelector(".gh-color-stops");
+      const codeBlock = document.querySelector(".gh-code-block code");
+
+      if (previewSection) {
+        // 更新預覽
+        const preview = previewSection.querySelector(".gh-gradient-preview");
+        preview.style.backgroundImage = gradientInfo.originalValue;
+
+        // 更新漸層資訊
+        const info = previewSection.querySelector(".gh-gradient-info");
+        info.innerHTML = `
+          <span class="gh-gradient-type">${gradientInfo.gradient.type}漸層</span>
+          <span class="gh-gradient-angle">${gradientInfo.gradient.angle}</span>
+        `;
+      }
+
+      if (colorStops) {
+        // 更新顏色停駐點
+        colorStops.innerHTML = gradientInfo.gradient.stops
+          .map(
+            stop => `
+          <div class="gh-color-stop">
+            <div class="gh-color-preview" style="background-color: ${stop.color}"></div>
+            <input type="text" value="${stop.color}" class="gh-color-value" readonly />
+            <input type="text" value="${stop.position || "0%"}" class="gh-stop-position" readonly />
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      if (codeBlock) {
+        // 更新代碼顯示
+        const cssCode = `background: ${gradientInfo.originalValue};`;
+        codeBlock.textContent = cssCode;
+      }
     }
 
     // 開始選取

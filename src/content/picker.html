@@ -11,40 +11,77 @@
     <link rel="stylesheet" href="picker.css" />
   </head>
   <body>
-    <!-- 選取器懸浮提示 -->
-    <div class="picker-tooltip">
-      <div class="tooltip-content">
-        <div class="element-info">
-          <span class="element-tag">&lt;div&gt;</span>
-          <span class="element-class">.hero-section</span>
-        </div>
-        <div class="gradient-preview">
-          <div class="preview-box"></div>
-          <span class="gradient-value">linear-gradient(180deg, #FF5F6D 0%, #FFC371 100%)</span>
-        </div>
-      </div>
-      <div class="tooltip-actions">
-        <button class="action-btn pick-btn" title="選取此元素">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-          </svg>
-          選取
-        </button>
-        <button class="action-btn cancel-btn" title="取消選取">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-          </svg>
-          取消
-        </button>
-      </div>
-    </div>
+    <!-- 根容器 -->
+    <div id="gradient-hunter-root">
+      <!-- 工具列 -->
+      <div id="gradient-hunter-toolbar" class="gh-toolbar">
+        <header class="gh-toolbar-header">
+          <h1>Gradient Hunter</h1>
+          <div class="gh-tools">
+            <button class="gh-tool-btn" id="gh-close-picker" title="關閉選取器">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </button>
+          </div>
+        </header>
 
-    <!-- 選取框 -->
-    <div class="picker-overlay">
-      <div class="overlay-border overlay-border-top"></div>
-      <div class="overlay-border overlay-border-right"></div>
-      <div class="overlay-border overlay-border-bottom"></div>
-      <div class="overlay-border overlay-border-left"></div>
+        <!-- 主要內容區 -->
+        <main class="gh-main-content">
+          <!-- 預覽區域 -->
+          <section class="gh-preview-section">
+            <div class="gh-gradient-preview"></div>
+            <div class="gh-gradient-info">
+              <span class="gh-gradient-type">線性漸層</span>
+              <span class="gh-gradient-angle">180°</span>
+            </div>
+          </section>
+
+          <!-- 顏色停駐點列表 -->
+          <section class="gh-color-stops">
+            <div class="gh-color-stop">
+              <div class="gh-color-preview" style="background-color: #ff5f6d"></div>
+              <input type="text" value="#FF5F6D" class="gh-color-value" readonly />
+              <input type="text" value="0%" class="gh-stop-position" readonly />
+            </div>
+            <div class="gh-color-stop">
+              <div class="gh-color-preview" style="background-color: #ffc371"></div>
+              <input type="text" value="#FFC371" class="gh-color-value" readonly />
+              <input type="text" value="100%" class="gh-stop-position" readonly />
+            </div>
+          </section>
+
+          <!-- 代碼輸出區 -->
+          <section class="gh-code-output">
+            <div class="gh-code-header">
+              <span>CSS 代碼</span>
+              <button class="gh-copy-btn" title="複製代碼">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M8 4v12a2 2 0 002 2h8a2 2 0 002-2V7.242a2 2 0 00-.586-1.414l-2.828-2.828A2 2 0 0015.172 2H10a2 2 0 00-2 2z"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <path d="M16 18v2a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h2" stroke="currentColor" stroke-width="2" />
+                </svg>
+              </button>
+            </div>
+            <pre class="gh-code-block"><code>background: linear-gradient(
+    180deg,
+    #FF5F6D 0%,
+    #FFC371 100%
+);</code></pre>
+          </section>
+        </main>
+      </div>
+
+      <!-- 選取框 -->
+      <div id="gradient-hunter-overlay" class="picker-overlay">
+        <div class="overlay-border overlay-border-top"></div>
+        <div class="overlay-border overlay-border-right"></div>
+        <div class="overlay-border overlay-border-bottom"></div>
+        <div class="overlay-border overlay-border-left"></div>
+      </div>
     </div>
   </body>
 </html>
