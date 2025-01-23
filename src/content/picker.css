@@ -162,7 +162,7 @@
 }
 
 .gh-gradient-preview {
-  height: 160px;
+  height: 200px;
   border-radius: var(--gh-radius-sm);
   border: 1px solid var(--gh-border);
   transition: var(--gh-transition);
@@ -179,6 +179,8 @@
   position: absolute;
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   width: 100%;
   height: 100%;
   display: flex;
@@ -186,12 +188,10 @@
   align-items: center;
   justify-content: center;
   gap: 20px;
-  padding: 32px;
   background: rgba(255, 255, 255, 0.97);
   backdrop-filter: blur(12px);
   color: var(--gh-text);
   text-align: center;
-  border-radius: var(--gh-radius-sm);
   pointer-events: none;
 }
 
@@ -206,7 +206,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
+  margin: 0 auto 16px;
 }
 
 .gh-icon-ring {
@@ -238,19 +238,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  max-width: 260px;
+  justify-content: center;
+  width: 100%;
   margin: 0 auto;
 }
 
 .gh-empty-state h2 {
   margin: 0;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--gh-text);
   letter-spacing: -0.02em;
-  background: linear-gradient(135deg, var(--gh-primary) 0%, var(--gh-primary-light) 100%);
-  -webkit-background-clip: text;
+
   -webkit-text-fill-color: transparent;
   line-height: 1.4;
 }
@@ -272,22 +271,27 @@
 .gh-empty-state-tips {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 8px;
   width: 100%;
+  max-width: 260px;
+  margin: 0 auto;
 }
 
 .gh-tip {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--gh-text-secondary);
-  padding: 10px 14px;
+  padding: 8px 12px;
   background: var(--gh-surface);
   border-radius: var(--gh-radius-sm);
   transition: var(--gh-transition);
   border: 1px solid var(--gh-border);
   width: 100%;
+  text-align: center;
 }
 
 .gh-tip svg {
@@ -606,14 +610,14 @@
 
 .gh-empty-state-text {
   text-align: center;
+  width: 100%;
   max-width: 240px;
   margin: 0 auto;
-  font-size: 14px;
 }
 
 .gh-empty-state-text h2 {
   margin: 0 0 8px 0;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--gh-text);
   letter-spacing: -0.02em;
@@ -621,11 +625,13 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   line-height: 1.4;
+  text-align: center;
 }
 
 .gh-empty-state-text p {
   margin: 0;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--gh-text-secondary);
   line-height: 1.6;
+  text-align: center;
 }
