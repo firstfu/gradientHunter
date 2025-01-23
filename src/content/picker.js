@@ -34,7 +34,7 @@
               transform: translateX(-50%) !important;
               background: #FFFFFF !important;
               border-radius: 8px !important;
-              padding: 12px 20px !important;
+              padding: >>>2px 20px !important;
               display: none !important;
               align-items: center !important;
               gap: 16px !important;
@@ -157,7 +157,7 @@
         return;
       }
 
-      console.log("[GradientPicker] 點擊事件>>>>>:", e);
+      console.log("[GradientPicker] 點擊事件:", e);
 
       // 獲取點擊位置下的所有元素
       const elements = document.elementsFromPoint(e.clientX, e.clientY);
