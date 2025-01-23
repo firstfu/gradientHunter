@@ -225,7 +225,7 @@
       return hasGradient;
     }
 
-    // 提取漸層資訊
+    // TODO: 提取漸層資訊
     extractGradientInfo(element) {
       const style = window.getComputedStyle(element);
       const backgroundImage = style.backgroundImage;
@@ -246,18 +246,32 @@
           // 解析參數
           const params = match[2].split(/,(?![^(]*\))/);
 
-          // 檢查第一個參數是否為角度
-          if (params[0].includes("deg")) {
+          // 檢查第一個參數是否包含位置資訊（例如：from 180deg at 50% 50%）
+          if (params[0].includes("from") || params[0].includes("at")) {
+            gradient.angle = params[0].trim();
+            params.shift();
+          } else if (params[0].includes("deg")) {
             gradient.angle = params[0].trim();
             params.shift();
           }
 
-          // 解析顏色停駐點
+          // 解析顏色停駐點，保持 RGB 值的完整性
           gradient.stops = params.map(stop => {
-            const [color, position] = stop.trim().split(/\s+/);
+            stop = stop.trim();
+
+            // 檢查是否有位置資訊
+            const posMatch = stop.match(/(.*?)(?:\s+(\d+%|\d+px|\d+em|center|top|bottom|left|right))?$/);
+
+            if (posMatch) {
+              return {
+                color: posMatch[1].trim(),
+                position: posMatch[2] || null,
+              };
+            }
+
             return {
-              color: color,
-              position: position || null,
+              color: stop,
+              position: null,
             };
           });
         }
@@ -294,6 +308,8 @@
       }
 
       if (colorStops) {
+        console.log("gradientInfo.gradient.stops:", gradientInfo);
+
         // 更新顏色停駐點
         colorStops.innerHTML = gradientInfo.gradient.stops
           .map(
@@ -301,7 +317,7 @@
           <div class="gh-color-stop">
             <div class="gh-color-preview" style="background-color: ${stop.color}"></div>
             <input type="text" value="${stop.color}" class="gh-color-value" readonly />
-            <input type="text" value="${stop.position || "0%"}" class="gh-stop-position" readonly />
+            ${stop.position ? `<input type="text" value="${stop.position}" class="gh-stop-position" readonly />` : ""}
           </div>
         `
           )

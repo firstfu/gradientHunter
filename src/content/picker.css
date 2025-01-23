@@ -189,40 +189,31 @@
 }
 
 .gh-color-stop {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 24px 1fr;
   gap: 8px;
   padding: 8px;
   background: var(--gh-surface);
   border-radius: var(--gh-radius-sm);
   transition: var(--gh-transition);
+  align-items: center;
 }
 
 .gh-color-stop:hover {
   background: var(--gh-surface-hover);
 }
 
-.gh-color-input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  flex: 1;
-}
-
 .gh-color-preview {
-  position: absolute;
-  left: 8px;
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
   border-radius: 4px;
   border: 1px solid var(--gh-border);
-  pointer-events: none;
-  z-index: 1;
+  transition: var(--gh-transition);
 }
 
 .gh-color-value {
   width: 100%;
-  padding: 6px 8px 6px 32px;
+  padding: 6px 8px;
   border: 1px solid var(--gh-border);
   border-radius: var(--gh-radius-sm);
   font-size: 13px;
@@ -230,12 +221,32 @@
   color: var(--gh-text);
   background: var(--gh-bg);
   transition: var(--gh-transition);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .gh-color-value:hover,
 .gh-color-value:focus {
   border-color: var(--gh-primary-light);
   outline: none;
+  overflow: auto;
+  white-space: normal;
+}
+
+.gh-color-stop input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+  border: 1px solid var(--gh-border);
+  border-radius: 4px;
+  transition: var(--gh-transition);
+}
+
+.gh-color-stop input[type="checkbox"]:checked {
+  background-color: var(--gh-primary);
+  border-color: var(--gh-primary);
 }
 
 /* 代碼輸出 */
