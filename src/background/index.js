@@ -55,7 +55,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   } else if (request.type === "GET_LAST_GRADIENT") {
     // 回傳最後選取的漸層
-    sendResponse({ gradient: lastPickedGradient });
+    console.log("[Background] Sending last gradient:", lastPickedGradient);
+    sendResponse({
+      success: true,
+      gradient: lastPickedGradient,
+    });
     return true;
   }
 });

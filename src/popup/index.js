@@ -45,12 +45,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("[Popup] Initializing...");
 
     // 請求最後選取的漸層資訊
-    const response = await chrome.runtime.sendMessage({
-      type: "GET_LAST_GRADIENT",
+    const lastGradient = await new Promise(resolve => {
+      chrome.runtime.sendMessage({ type: "GET_LAST_GRADIENT" }, response => {
+        console.log("[Popup] Received last gradient response:", response);
+        resolve(response);
+      });
     });
 
-    if (response && response.gradient) {
-      updateUI(response.gradient);
+    if (lastGradient && lastGradient.gradient) {
+      console.log("[Popup] Updating UI with last gradient:", lastGradient.gradient);
+      updateUI(lastGradient.gradient);
     }
 
     const pickButton = document.querySelector('.tool-btn[title="開始選取"]');
