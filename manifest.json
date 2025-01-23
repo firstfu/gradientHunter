@@ -5,10 +5,7 @@
     "description": "A powerful tool for capturing and generating CSS gradients from any website",
     "permissions": [
         "activeTab",
-        "storage",
-        "scripting",
-        "tabs",
-        "windows"
+        "scripting"
     ],
     "host_permissions": [
         "<all_urls>"
