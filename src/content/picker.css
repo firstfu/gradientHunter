@@ -286,12 +286,11 @@
   font-size: 12px;
   color: var(--gh-text-secondary);
   padding: 8px 12px;
-  background: var(--gh-surface);
-  border-radius: var(--gh-radius-sm);
-  transition: var(--gh-transition);
-  border: 1px solid var(--gh-border);
   width: 100%;
   text-align: center;
+  transition: var(--gh-transition);
+  background: transparent;
+  border: none;
 }
 
 .gh-tip svg {
@@ -300,9 +299,8 @@
 }
 
 .gh-tip:hover {
-  background: var(--gh-surface-hover);
   transform: translateX(4px);
-  border-color: var(--gh-primary-light);
+  color: var(--gh-text);
 }
 
 /* 空狀態的顏色停駐點 */

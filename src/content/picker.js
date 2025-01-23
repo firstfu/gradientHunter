@@ -303,7 +303,7 @@
 
         if (!gradientInfo) {
           // 初始狀態：顯示引導 UI
-          preview.style.backgroundImage = "linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%)";
+
           preview.innerHTML = `
             <div class="gh-empty-state">
               <div class="gh-empty-state-content">
@@ -363,7 +363,7 @@
 
           // 清空代碼區域
           if (codeBlock) {
-            codeBlock.innerHTML = `<span class="gh-code-comment">/* 點擊頁面上的漸層元素後，將自動生成 CSS 代碼 */</span>`;
+            codeBlock.innerHTML = `<span class="gh-code-comment">/* 點擊頁面漸層來生成 CSS */</span>`;
           }
 
           return;
