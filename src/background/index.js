@@ -106,7 +106,7 @@ async function handleStartPicking() {
 
 // 處理漸層選取完成
 async function handleGradientSelected(request) {
-  console.log("[Background] Handling gradient selected:", request);
+  console.log("[Background] Handling gradient selected 處理漸層選取完成:", request);
 
   // 儲存選取的漸層
   lastPickedGradient = request.gradient;
@@ -115,7 +115,7 @@ async function handleGradientSelected(request) {
   try {
     await chrome.runtime.sendMessage({
       type: "UPDATE_GRADIENT",
-      gradient: request.gradient,
+      gradient: lastPickedGradient,
     });
     console.log("[Background] Update gradient message sent to popup");
   } catch (error) {

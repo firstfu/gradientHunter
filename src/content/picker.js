@@ -117,9 +117,11 @@
         this.stop();
       });
 
+      // 確認選擇
       document.getElementById("gh-confirm-pick").addEventListener("click", () => {
         if (this.selectedElement) {
           const gradientInfo = this.extractGradientInfo(this.selectedElement);
+          console.log("[GradientPicker] 選取的漸層資訊:", gradientInfo);
           chrome.runtime.sendMessage({
             type: "GRADIENT_SELECTED",
             gradient: gradientInfo,
@@ -129,6 +131,7 @@
       });
     }
 
+    // 綁定消息監聽器
     bindMessageListener() {
       chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (message.type === "START_PICKER" || message.type === "ACTIVATE_PICKER") {
@@ -141,6 +144,7 @@
       });
     }
 
+    // 處理點擊事件
     handleClick = e => {
       // 如果點擊的是工具欄或其子元素，不處理該事件
       if (e.target.closest(".gradient-hunter-toolbar")) {
@@ -229,6 +233,7 @@
       };
     }
 
+    // 開始選取
     start() {
       console.log("[GradientPicker start] 當前狀態:", this.isActive);
       if (!this.isActive) {
@@ -245,6 +250,7 @@
       }
     }
 
+    // 停止選取
     stop() {
       if (this.isActive) {
         this.isActive = false;
@@ -264,6 +270,7 @@
       }
     }
 
+    // 清理
     cleanup() {
       this.stop();
       if (this.toolbar) {
