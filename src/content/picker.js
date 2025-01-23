@@ -177,8 +177,8 @@
 
         if (this.hasGradient(element)) {
           this.selectedElement = element;
+          console.log("[GradientPicker] 找到漸層元素:", element.cloneNode(true)); // 在添加 highlight 之前輸出元素的副本
           element.classList.add("gradient-hunter-highlight");
-          console.log("[GradientPicker] 找到漸層元素:", element);
           return;
         }
       }
@@ -189,6 +189,13 @@
     // 檢查元素是否包含漸層
     hasGradient(element) {
       if (!element) return false;
+
+      // 暫時移除 highlight class 以獲取原始樣式
+      const hasHighlight = element.classList.contains("gradient-hunter-highlight");
+      if (hasHighlight) {
+        element.classList.remove("gradient-hunter-highlight");
+      }
+
       const style = window.getComputedStyle(element);
 
       // 輸出更多樣式資訊以便偵錯
@@ -200,6 +207,11 @@
 
       // 檢查各種可能的漸層屬性
       const hasGradient = style.backgroundImage.includes("gradient") || style.background.includes("gradient");
+
+      // 如果之前有 highlight class，則加回去
+      if (hasHighlight) {
+        element.classList.add("gradient-hunter-highlight");
+      }
 
       return hasGradient;
     }
