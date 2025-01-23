@@ -62,6 +62,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     });
     return true;
   }
+  return true; // 保持通道打開
 });
 
 // 處理開始選取的請求
@@ -74,33 +75,134 @@ async function handleStartPicking() {
       throw new Error("No active tab found");
     }
 
-    // 確保內容腳本已注入
-    if (!injectedTabs.has(tab.id)) {
-      try {
-        await chrome.scripting.executeScript({
-          target: { tabId: tab.id },
-          files: ["src/content/picker.js"],
-        });
-        await chrome.scripting.insertCSS({
-          target: { tabId: tab.id },
-          files: ["src/content/picker.css"],
-        });
-        injectedTabs.add(tab.id);
-      } catch (injectionError) {
-        console.error("[Background] Script injection error:", injectionError);
-        throw new Error("Failed to inject content script");
-      }
+    try {
+      // 注入樣式
+      await chrome.scripting.insertCSS({
+        target: { tabId: tab.id },
+        css: `
+          #gradient-hunter-root {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 2147483647;
+            pointer-events: none;
+          }
+
+          #gradient-hunter-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.1);
+            z-index: 2147483646;
+            cursor: crosshair;
+            display: none;
+            pointer-events: auto;
+          }
+
+          #gradient-hunter-toolbar {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #FFFFFF;
+            border-radius: 8px;
+            padding: 8px 20px;
+            display: none;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 2147483647;
+            pointer-events: auto;
+          }
+
+          .gh-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+          }
+
+          .gh-button:hover {
+            opacity: 0.9;
+          }
+
+          #gh-close-picker {
+            background: #f44336;
+            color: white;
+          }
+
+          #gh-confirm-pick {
+            background: #4CAF50;
+            color: white;
+          }
+
+          .gh-instructions {
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+          }
+
+          .gradient-hunter-highlight {
+            outline: 3px solid #4CAF50 !important;
+            outline-offset: 2px !important;
+            transition: outline 0.2s ease !important;
+            position: relative !important;
+            z-index: 2147483646 !important;
+          }
+        `,
+      });
+
+      // 注入初始化腳本
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: () => {
+          // 創建根容器
+          const root = document.createElement("div");
+          root.id = "gradient-hunter-root";
+
+          // 創建遮罩層
+          const overlay = document.createElement("div");
+          overlay.id = "gradient-hunter-overlay";
+          root.appendChild(overlay);
+
+          // 創建工具欄
+          const toolbar = document.createElement("div");
+          toolbar.id = "gradient-hunter-toolbar";
+          toolbar.innerHTML = `
+            <button id="gh-close-picker" class="gh-button">取消</button>
+            <span class="gh-instructions">移動滑鼠到漸層元素上並點擊選取</span>
+            <button id="gh-confirm-pick" class="gh-button">確認選擇</button>
+          `;
+          root.appendChild(toolbar);
+
+          // 添加到頁面
+          document.body.appendChild(root);
+        },
+      });
+
+      // 注入主要腳本
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ["src/content/picker.js"],
+      });
+
+      // 發送消息到 content script
+      await chrome.tabs.sendMessage(tab.id, {
+        type: "START_PICKER",
+        timestamp: Date.now(),
+      });
+
+      return { success: true };
+    } catch (injectionError) {
+      console.error("[Background] Script injection error:", injectionError);
+      throw new Error("Failed to inject content script");
     }
-
-    // 等待一小段時間確保腳本已完全加載
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    // 發送消息到 content script
-    await chrome.tabs.sendMessage(tab.id, {
-      type: "START_PICKER",
-      timestamp: Date.now(),
-    });
-    return { success: true };
   } catch (error) {
     console.error("[Background] Error in handleStartPicking:", error);
     throw error;
@@ -112,18 +214,19 @@ async function handleGradientSelected(request) {
   // 儲存選取的漸層
   lastPickedGradient = request.gradient;
 
-  // 通知 popup 更新 UI
+  console.log("===================================");
+  console.log("[Background] 處理漸層選取完成 Gradient selected:", lastPickedGradient);
+  console.log("===================================");
+
+  // 直接發送消息到 popup
   try {
-    // 檢查 popup 是否開啟
-    const views = chrome.runtime.getViews({ type: "popup" });
-    if (views.length > 0) {
-      await chrome.runtime.sendMessage({
-        type: "UPDATE_GRADIENT",
-        gradient: lastPickedGradient,
-      });
-    }
+    await chrome.runtime.sendMessage({
+      type: "UPDATE_GRADIENT",
+      gradient: lastPickedGradient,
+    });
   } catch (error) {
     console.error("[Background] Error sending message to popup:", error);
+    // 忽略錯誤，因為 popup 可能未開啟
   }
 
   return { success: true };

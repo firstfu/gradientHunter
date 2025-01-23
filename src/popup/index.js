@@ -5,8 +5,10 @@
  */
 
 // 更新 UI 顯示
-function updateUI(gradient) {
-  if (!gradient) return;
+function updateUI(gradientData) {
+  if (!gradientData || !gradientData.gradient) return;
+
+  const gradient = gradientData.gradient;
 
   // 顯示預覽區域
   const previewSection = document.querySelector(".preview-section");
@@ -62,7 +64,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (response && response.success && response.gradient) {
-      updateUI(response.gradient);
+      updateUI(response);
     }
 
     const pickButton = document.querySelector('.tool-btn[title="開始選取"]');
@@ -106,7 +108,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // 設置消息監聽器
     const messageListener = (request, sender, sendResponse) => {
       if (request.type === "UPDATE_GRADIENT" && request.gradient) {
-        updateUI(request.gradient);
+        updateUI(request);
         sendResponse({ success: true });
       }
       return true; // 保持消息通道開啟
