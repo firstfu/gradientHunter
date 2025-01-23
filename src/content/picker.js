@@ -183,9 +183,20 @@
     hasGradient(element) {
       if (!element) return false;
       const style = window.getComputedStyle(element);
-      const hasGradient = style.backgroundImage.includes("gradient");
+
+      // 輸出更多樣式資訊以便偵錯
+      console.log("[GradientPicker] 元素樣式檢查:", {
+        backgroundImage: style.backgroundImage,
+        background: style.background,
+        className: element.className,
+        computedStyle: style,
+      });
+
+      // 檢查各種可能的漸層屬性
+      const hasGradient = style.backgroundImage.includes("gradient") || style.background.includes("gradient");
+
       if (hasGradient) {
-        console.log("[GradientPicker] Gradient 找到漸層元素:", element);
+        console.log("[GradientPicker] 找到漸層元素:", element);
       }
       return hasGradient;
     }
