@@ -117,10 +117,9 @@
     }
 
     bindEvents() {
-      // 滑鼠移動事件
-      this.overlay.addEventListener("mousemove", e => {
-        // 檢查是否點擊到工具列
-        const toolbar = document.querySelector(".gradient-hunter-toolbar");
+      // 點擊事件
+      this.overlay.addEventListener("click", e => {
+        // 如果點擊到工具列，不進行處理
         if (e.target.closest(".gradient-hunter-toolbar")) {
           return;
         }
@@ -131,7 +130,7 @@
         this.overlay.style.pointerEvents = "auto";
 
         // 移除之前的高亮
-        if (this.selectedElement && this.selectedElement !== element) {
+        if (this.selectedElement) {
           this.selectedElement.classList.remove("gradient-hunter-highlight");
         }
 
@@ -140,23 +139,6 @@
           this.selectedElement = element;
           element.classList.add("gradient-hunter-highlight");
           console.log("[GradientPicker] Gradient 找到漸層元素:", element);
-        }
-      });
-
-      // 點擊事件
-      this.overlay.addEventListener("click", e => {
-        // 如果點擊到工具列，不進行處理
-        if (e.target.closest(".gradient-hunter-toolbar")) {
-          return;
-        }
-
-        this.overlay.style.pointerEvents = "none";
-        const element = document.elementFromPoint(e.clientX, e.clientY);
-        this.overlay.style.pointerEvents = "auto";
-
-        if (this.hasGradient(element)) {
-          this.selectedElement = element;
-          element.classList.add("gradient-hunter-highlight");
         }
       });
 
