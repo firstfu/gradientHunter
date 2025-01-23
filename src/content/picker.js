@@ -14,7 +14,7 @@
       this.toolbar = document.getElementById("gradient-hunter-toolbar");
 
       if (!this.root || !this.overlay || !this.toolbar) {
-        console.error("[GradientPicker] UI 元素未找到");
+        // console.error("[GradientPicker] UI 元素未找到");
         return;
       }
 

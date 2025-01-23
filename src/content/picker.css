@@ -92,7 +92,7 @@
   position: fixed;
   top: 20px;
   right: 20px;
-  width: 380px;
+  width: 340px;
   max-width: calc(100vw - 40px);
   max-height: calc(100vh - 40px);
   background: var(--gh-bg);
