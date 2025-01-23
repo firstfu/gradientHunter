@@ -119,8 +119,13 @@
     bindEvents() {
       // 點擊事件
       this.overlay.addEventListener("click", e => {
+        console.log("[GradientPicker] Clicked");
+
+        console.log("點擊事件-截取元素:", e.target);
+
         // 如果點擊到工具列，不進行處理
         if (e.target.closest(".gradient-hunter-toolbar")) {
+          console.log("點擊事件-工具列:", e.target.closest(".gradient-hunter-toolbar"));
           return;
         }
 
@@ -139,6 +144,8 @@
           this.selectedElement = element;
           element.classList.add("gradient-hunter-highlight");
           console.log("[GradientPicker] Gradient 找到漸層元素:", element);
+        } else {
+          console.log("[GradientPicker] 沒有找到漸層元素:", element);
         }
       });
 
