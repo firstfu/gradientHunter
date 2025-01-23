@@ -47,7 +47,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const saveButton = document.querySelector('.tool-btn[title="儲存"]');
     const settingsButton = document.querySelector('.tool-btn[title="設定"]');
 
-    // TODO: 綁定選取按鈕事件
+    // 消息流程 1: Popup -> Background
+    // 當用戶點擊選取按鈕時，發送 REQUEST_START_PICKING 消息到背景腳本
+    // 請求開始選取操作
     pickButton.addEventListener("click", () => {
       console.log("綁定選取按鈕事件");
       chrome.runtime.sendMessage({ type: "REQUEST_START_PICKING" });
@@ -70,7 +72,9 @@ document.addEventListener("DOMContentLoaded", () => {
     //     }
     //   });
 
-    // 監聽來自背景腳本的消息
+    // 消息流程 4: Background -> Popup
+    // 監聽來自背景腳本的 UPDATE_GRADIENT 消息
+    // 當收到新的漸層數據時，更新 UI 顯示
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       if (request.type === "UPDATE_GRADIENT" && request.gradient) {
         updateUI(request.gradient);

@@ -216,7 +216,9 @@ if (window.gradientPicker) {
       const gradient = this.getGradient(this.hoveredElement);
       if (!gradient) return;
 
-      // 發送消息到擴充功能
+      // 消息流程 3: Content -> Background
+      // 當用戶確認選取元素時，發送 GRADIENT_PICKED 消息到背景腳本
+      // 將選取到的漸層數據發送回去
       chrome.runtime.sendMessage({
         type: "GRADIENT_PICKED",
         gradient: gradient,
@@ -229,7 +231,9 @@ if (window.gradientPicker) {
   // 將實例保存到全局變量
   window.gradientPicker = new GradientPicker();
 
-  // TODO: 監聽來自擴充功能的消息
+  // 消息流程 2: Background -> Content
+  // 監聽來自背景腳本的 ACTIVATE_PICKER 消息
+  // 當收到消息時，激活選取器
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type === "ACTIVATE_PICKER") {
       window.gradientPicker.activate();
