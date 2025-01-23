@@ -44,6 +44,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     console.log("[Popup] Initializing...");
 
+    // 請求最後選取的漸層資訊
+    const response = await chrome.runtime.sendMessage({
+      type: "GET_LAST_GRADIENT",
+    });
+
+    if (response && response.gradient) {
+      updateUI(response.gradient);
+    }
+
     const pickButton = document.querySelector('.tool-btn[title="開始選取"]');
     if (!pickButton) {
       throw new Error("Pick button not found");
