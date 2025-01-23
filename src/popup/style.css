@@ -81,6 +81,14 @@ body {
   overflow: hidden;
   border: 1px solid #eee;
   flex-shrink: 0;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  display: block;
+}
+
+.preview-section.hidden {
+  opacity: 0;
+  display: none;
 }
 
 .gradient-preview {

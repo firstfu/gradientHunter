@@ -8,6 +8,12 @@
 function updateUI(gradient) {
   if (!gradient) return;
 
+  // 顯示預覽區域
+  const previewSection = document.querySelector(".preview-section");
+  if (previewSection) {
+    previewSection.classList.remove("hidden");
+  }
+
   // 更新預覽區域
   document.querySelector(".gradient-preview").style.background = gradient;
 
@@ -45,16 +51,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("[Popup] Initializing...");
 
     // 請求最後選取的漸層資訊
-    const lastGradient = await new Promise(resolve => {
+    const response = await new Promise(resolve => {
       chrome.runtime.sendMessage({ type: "GET_LAST_GRADIENT" }, response => {
         console.log("[Popup] Received last gradient response:", response);
         resolve(response);
       });
     });
 
-    if (lastGradient && lastGradient.gradient) {
-      console.log("[Popup] Updating UI with last gradient:", lastGradient.gradient);
-      updateUI(lastGradient.gradient);
+    // 顯示預覽區域
+    const previewSection = document.querySelector(".preview-section");
+    if (previewSection) {
+      previewSection.style.display = "block";
+    }
+
+    if (response && response.success && response.gradient) {
+      console.log("[Popup] Updating UI with gradient:", response.gradient);
+      updateUI(response.gradient);
     }
 
     const pickButton = document.querySelector('.tool-btn[title="開始選取"]');
