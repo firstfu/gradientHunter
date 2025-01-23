@@ -5,6 +5,8 @@
     constructor() {
       this.isActive = false;
       this.selectedElement = null;
+      this.isDragging = false;
+      this.dragOffset = { x: 0, y: 0 };
 
       // 獲取已注入的 UI 元素
       this.root = document.getElementById("gradient-hunter-root");
@@ -19,6 +21,9 @@
       // 保存事件處理函數的引用
       this.boundClickHandler = this.handleClick.bind(this);
       this.boundMessageListener = this.handleMessage.bind(this);
+      this.boundMouseDownHandler = this.handleMouseDown.bind(this);
+      this.boundMouseMoveHandler = this.handleMouseMove.bind(this);
+      this.boundMouseUpHandler = this.handleMouseUp.bind(this);
 
       this.init();
     }
@@ -26,6 +31,62 @@
     init() {
       this.bindMessageListener();
       this.bindUIEvents();
+      this.initDraggable();
+    }
+
+    // 初始化拖動功能
+    initDraggable() {
+      // 確保工具列可以被拖曳
+      this.toolbar.style.position = "fixed";
+      this.toolbar.style.cursor = "move";
+      this.toolbar.style.userSelect = "none";
+
+      this.toolbar.addEventListener("mousedown", this.boundMouseDownHandler);
+      document.addEventListener("mousemove", this.boundMouseMoveHandler);
+      document.addEventListener("mouseup", this.boundMouseUpHandler);
+    }
+
+    // 處理滑鼠按下事件
+    handleMouseDown(e) {
+      // 如果點擊的是按鈕，不處理拖動
+      if (e.target.closest(".gh-button")) {
+        return;
+      }
+
+      e.preventDefault(); // 防止文字選取
+      this.isDragging = true;
+      this.toolbar.classList.add("dragging");
+
+      // 計算滑鼠點擊位置與工具欄的相對位置
+      const toolbarRect = this.toolbar.getBoundingClientRect();
+      this.dragOffset = {
+        x: e.clientX - toolbarRect.left,
+        y: e.clientY - toolbarRect.top,
+      };
+    }
+
+    // 處理滑鼠移動事件
+    handleMouseMove(e) {
+      if (!this.isDragging) return;
+
+      e.preventDefault();
+
+      // 計算新位置，確保不超出視窗範圍
+      const x = Math.max(0, Math.min(e.clientX - this.dragOffset.x, window.innerWidth - this.toolbar.offsetWidth));
+      const y = Math.max(0, Math.min(e.clientY - this.dragOffset.y, window.innerHeight - this.toolbar.offsetHeight));
+
+      // 更新工具欄位置
+      this.toolbar.style.left = `${x}px`;
+      this.toolbar.style.top = `${y}px`;
+    }
+
+    // 處理滑鼠放開事件
+    handleMouseUp(e) {
+      if (!this.isDragging) return;
+
+      e.preventDefault();
+      this.isDragging = false;
+      this.toolbar.classList.remove("dragging");
     }
 
     // 綁定 UI 事件
@@ -185,7 +246,9 @@
       console.log("[GradientPicker] 執行清理");
       this.stop();
 
-      // 移除消息監聽器
+      // 移除事件監聽器
+      document.removeEventListener("mousemove", this.boundMouseMoveHandler);
+      document.removeEventListener("mouseup", this.boundMouseUpHandler);
       chrome.runtime.onMessage.removeListener(this.boundMessageListener);
 
       // 移除 UI

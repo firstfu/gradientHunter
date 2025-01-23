@@ -117,6 +117,17 @@ async function handleStartPicking() {
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             z-index: 2147483647;
             pointer-events: auto;
+            user-select: none;
+            cursor: move;
+          }
+
+          #gradient-hunter-toolbar.dragging {
+            opacity: 0.9;
+            transition: none;
+          }
+
+          #gradient-hunter-toolbar .gh-instructions {
+            cursor: move;
           }
 
           .gh-button {
@@ -135,11 +146,13 @@ async function handleStartPicking() {
           #gh-close-picker {
             background: #f44336;
             color: white;
+            cursor: pointer;
           }
 
           #gh-confirm-pick {
             background: #4CAF50;
             color: white;
+            cursor: pointer;
           }
 
           .gh-instructions {
