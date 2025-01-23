@@ -132,6 +132,7 @@ class GradientPicker {
       if (this.hasGradient(element)) {
         this.selectedElement = element;
         element.classList.add("gradient-hunter-highlight");
+        console.log("[GradientPicker] Gradient 找到漸層元素:", element);
       }
     });
 
