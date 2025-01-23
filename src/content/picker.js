@@ -6,6 +6,11 @@ class GradientPicker {
     this.overlay = null;
     this.selectedElement = null;
     this.init();
+
+    // 在頁面卸載時清理
+    window.addEventListener("unload", () => {
+      this.cleanup();
+    });
   }
 
   init() {
@@ -37,59 +42,62 @@ class GradientPicker {
     const style = document.createElement("style");
     style.textContent = `
         #gradient-hunter-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.3);
-            z-index: 2147483646;
-            cursor: crosshair;
-            display: none;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            background: rgba(0, 0, 0, 0.3) !important;
+            z-index: 2147483646 !important;
+            cursor: crosshair !important;
+            display: none !important;
+            pointer-events: auto !important;
         }
 
-        .gradient-hunter-toolbar {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #FFFFFF;
-            border-radius: 8px;
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            z-index: 2147483647;
+        #gradient-hunter-overlay .gradient-hunter-toolbar {
+            position: fixed !important;
+            top: 20px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            background: #FFFFFF !important;
+            border-radius: 8px !important;
+            padding: 12px 20px !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 16px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+            z-index: 2147483647 !important;
+            pointer-events: auto !important;
         }
 
-        .gh-button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
+        #gradient-hunter-overlay .gh-button {
+            padding: 8px 16px !important;
+            border: none !important;
+            border-radius: 6px !important;
+            font-size: 14px !important;
+            cursor: pointer !important;
+            transition: all 0.2s !important;
+            pointer-events: auto !important;
         }
 
-        .gh-button:hover {
-            opacity: 0.9;
+        #gradient-hunter-overlay .gh-button:hover {
+            opacity: 0.9 !important;
         }
 
-        #gh-close-picker {
-            background: #f44336;
-            color: white;
+        #gradient-hunter-overlay #gh-close-picker {
+            background: #f44336 !important;
+            color: white !important;
         }
 
-        #gh-confirm-pick {
-            background: #4CAF50;
-            color: white;
+        #gradient-hunter-overlay #gh-confirm-pick {
+            background: #4CAF50 !important;
+            color: white !important;
         }
 
-        .gh-instructions {
-            color: #333;
-            font-size: 14px;
-            font-weight: 500;
+        #gradient-hunter-overlay .gh-instructions {
+            color: #333 !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
         }
 
         .gradient-hunter-highlight {
@@ -175,7 +183,10 @@ class GradientPicker {
     if (!element) return false;
     const style = window.getComputedStyle(element);
     const hasGradient = style.backgroundImage.includes("gradient");
-    console.log("[GradientPicker] Checking gradient for element:", element, hasGradient);
+    // console.log("[GradientPicker] Checking gradient for element:", element, hasGradient);
+    if (hasGradient) {
+      console.log("[GradientPicker] Gradient 找到漸層元素:", element);
+    }
     return hasGradient;
   }
 
@@ -194,17 +205,38 @@ class GradientPicker {
   start() {
     console.log("[GradientPicker] Starting picker...");
     this.isActive = true;
-    this.overlay.style.display = "block";
+    if (this.overlay) {
+      this.overlay.style.setProperty("display", "block", "important");
+      document.body.style.setProperty("overflow", "hidden", "important");
+    } else {
+      console.error("[GradientPicker] Overlay not initialized");
+    }
   }
 
   stop() {
     console.log("[GradientPicker] Stopping picker...");
     this.isActive = false;
-    this.overlay.style.display = "none";
+    if (this.overlay) {
+      this.overlay.style.setProperty("display", "none", "important");
+      document.body.style.removeProperty("overflow");
+    }
     if (this.selectedElement) {
       this.selectedElement.classList.remove("gradient-hunter-highlight");
       this.selectedElement = null;
     }
+  }
+
+  cleanup() {
+    console.log("[GradientPicker] Cleaning up...");
+    if (this.overlay) {
+      document.body.removeChild(this.overlay);
+      this.overlay = null;
+    }
+    if (this.selectedElement) {
+      this.selectedElement.classList.remove("gradient-hunter-highlight");
+      this.selectedElement = null;
+    }
+    document.body.style.removeProperty("overflow");
   }
 }
 
