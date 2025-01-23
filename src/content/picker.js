@@ -1,343 +1,214 @@
-/**
- * @ Author: 1891
- * @ Create Time: 2024-01-21
- * @ Description: 漸層獵手插件的選取器腳本
- */
-
-console.log("Content script 開始加載");
-
-// 檢查是否已經初始化
-if (window.gradientPicker) {
-  console.log("Gradient picker already initialized");
-} else {
-  class GradientPicker {
-    constructor() {
-      this.isActive = false;
-      this.hoveredElement = null;
-      this.tooltip = null;
-      this.overlay = null;
-      this.init();
-    }
-
-    init() {
-      // 檢查是否已經初始化
-      console.log("檢查是否已經初始化");
-      if (document.querySelector(".picker-tooltip")) {
-        this.tooltip = document.querySelector(".picker-tooltip");
-        this.overlay = document.querySelector(".picker-overlay");
-      } else {
-        // 創建 UI 元素
-        this.createTooltip();
-        this.createOverlay();
-      }
-
-      // 綁定事件監聽器
-      this.bindEvents();
-
-      // 初始化時隱藏 UI
-      this.deactivate();
-
-      console.log("Gradient Hunter picker initialized");
-    }
-
-    createTooltip() {
-      console.log("開始創建懸浮提示元素");
-      // 創建懸浮提示元素
-      this.tooltip = document.createElement("div");
-      this.tooltip.className = "picker-tooltip";
-      this.tooltip.style.cssText = `
-        position: fixed;
-        z-index: 2147483647;
-        display: none;
-        padding: 8px;
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      `;
-      this.tooltip.innerHTML = `
-        <div class="tooltip-content">
-          <div class="element-info">
-            <span class="element-tag"></span>
-            <span class="element-class"></span>
-          </div>
-          <div class="gradient-preview">
-            <div class="preview-box"></div>
-            <span class="gradient-value"></span>
-          </div>
-        </div>
-        <div class="tooltip-actions">
-          <button class="action-btn pick-btn" title="選取此元素">選取</button>
-          <button class="action-btn cancel-btn" title="取消選取">取消</button>
-        </div>
-      `;
-      document.body.appendChild(this.tooltip);
-      console.log("懸浮提示元素創建完成");
-
-      // 綁定按鈕事件
-      const pickBtn = this.tooltip.querySelector(".pick-btn");
-      const cancelBtn = this.tooltip.querySelector(".cancel-btn");
-
-      pickBtn.addEventListener("click", e => {
-        e.stopPropagation();
-        this.pickElement();
-      });
-
-      cancelBtn.addEventListener("click", e => {
-        e.stopPropagation();
-        this.deactivate();
-      });
-    }
-
-    createOverlay() {
-      console.log("開始創建選取框");
-      this.overlay = document.createElement("div");
-      this.overlay.className = "picker-overlay";
-      this.overlay.style.cssText = `
-        position: fixed;
-        z-index: 2147483646;
-        display: none;
-        pointer-events: none;
-        border: 2px solid #0066cc;
-      `;
-      document.body.appendChild(this.overlay);
-      console.log("選取框創建完成");
-    }
-
-    bindEvents() {
-      console.log("開始綁定事件");
-      // 移除舊的事件監聽器
-      document.removeEventListener("mousemove", this._handleMouseMove);
-      document.removeEventListener("keydown", this._handleKeyDown);
-
-      // 創建綁定的事件處理函數
-      this._handleMouseMove = this.handleMouseMove.bind(this);
-      this._handleKeyDown = this.handleKeyDown.bind(this);
-
-      // 添加新的事件監聽器
-      document.addEventListener("mousemove", this._handleMouseMove);
-      document.addEventListener("keydown", this._handleKeyDown);
-      console.log("事件綁定完成");
-    }
-
-    handleMouseMove(event) {
-      if (!this.isActive) return;
-
-      // 獲取滑鼠下的元素
-      const element = document.elementFromPoint(event.clientX, event.clientY);
-      if (!element || element === this.tooltip || this.tooltip.contains(element)) return;
-
-      // 檢查元素是否有漸層背景
-      const gradient = this.getGradient(element);
-      if (!gradient) return;
-
-      // 更新懸浮提示
-      this.updateTooltip(element, gradient, event);
-      // 更新選取框
-      this.updateOverlay(element);
-
-      this.hoveredElement = element;
-    }
-
-    handleKeyDown(event) {
-      if (event.key === "Escape") {
-        this.deactivate();
-      }
-    }
-
-    getGradient(element) {
-      const style = window.getComputedStyle(element);
-      const properties = [style.background, style.backgroundImage];
-
-      for (const prop of properties) {
-        if (!prop) continue;
-
-        // 檢查是否包含漸層
-        if (prop.includes("gradient")) {
-          // 匹配所有類型的漸層
-          const gradientRegex = /(linear|radial|conic)-gradient\s*\([^)]+\)/g;
-          const matches = prop.match(gradientRegex);
-
-          if (matches && matches.length > 0) {
-            // 返回第一個找到的漸層
-            return matches[0];
-          }
-        }
-      }
-      return null;
-    }
-
-    updateTooltip(element, gradient, event) {
-      // 更新元素資訊
-      const tagName = element.tagName.toLowerCase();
-      const className = element.className ? `.${element.className.split(" ")[0]}` : "";
-
-      this.tooltip.querySelector(".element-tag").textContent = `<${tagName}>`;
-      this.tooltip.querySelector(".element-class").textContent = className;
-
-      // 更新漸層預覽
-      this.tooltip.querySelector(".preview-box").style.background = gradient;
-      this.tooltip.querySelector(".gradient-value").textContent = gradient;
-
-      // 更新位置，確保提示框不會超出視窗
-      const tooltipRect = this.tooltip.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
-
-      let left = event.clientX;
-      let top = event.clientY - tooltipRect.height - 10;
-
-      // 水平方向調整
-      if (left + tooltipRect.width > viewportWidth) {
-        left = viewportWidth - tooltipRect.width - 10;
-      }
-
-      // 垂直方向調整
-      if (top < 0) {
-        top = event.clientY + 10;
-      }
-
-      this.tooltip.style.left = left + "px";
-      this.tooltip.style.top = top + "px";
-    }
-
-    updateOverlay(element) {
-      const rect = element.getBoundingClientRect();
-
-      this.overlay.style.left = rect.left + window.scrollX + "px";
-      this.overlay.style.top = rect.top + window.scrollY + "px";
-      this.overlay.style.width = rect.width + "px";
-      this.overlay.style.height = rect.height + "px";
-      this.overlay.style.display = "block";
-    }
-
-    activate() {
-      console.log("開始激活選取器");
-      this.isActive = true;
-      document.body.style.cursor = "crosshair";
-
-      // 確保 UI 元素存在
-      if (!this.tooltip || !this.overlay) {
-        console.log("UI 元素不存在，重新初始化");
-        this.init();
-      }
-
-      // 顯示 UI 元素
-      if (this.tooltip) {
-        this.tooltip.style.display = "block";
-        this.tooltip.style.opacity = "1";
-        this.tooltip.style.visibility = "visible";
-        this.tooltip.style.pointerEvents = "auto";
-        console.log("顯示懸浮提示");
-      } else {
-        console.error("tooltip 元素不存在");
-      }
-
-      if (this.overlay) {
-        this.overlay.style.display = "block";
-        this.overlay.style.opacity = "1";
-        this.overlay.style.visibility = "visible";
-        console.log("顯示選取框");
-      } else {
-        console.error("overlay 元素不存在");
-      }
-
-      console.log("選取器激活完成，UI 狀態：", {
-        isActive: this.isActive,
-        tooltipDisplay: this.tooltip?.style.display,
-        overlayDisplay: this.overlay?.style.display,
-      });
-    }
-
-    deactivate() {
-      console.log("開始停用選取器");
-      this.isActive = false;
-      document.body.style.cursor = "";
-
-      if (this.tooltip) {
-        this.tooltip.style.display = "none";
-        console.log("隱藏懸浮提示");
-      }
-
-      if (this.overlay) {
-        this.overlay.style.display = "none";
-        console.log("隱藏選取框");
-      }
-
-      this.hoveredElement = null;
-      console.log("選取器停用完成");
-    }
-
-    pickElement() {
-      if (!this.hoveredElement) return;
-
-      const gradient = this.getGradient(this.hoveredElement);
-      if (!gradient) return;
-
-      // 消息流程 3: Content -> Background
-      // 當用戶確認選取元素時，發送 GRADIENT_PICKED 消息到背景腳本
-      // 將選取到的漸層數據發送回去
-      chrome.runtime.sendMessage({
-        type: "GRADIENT_PICKED",
-        gradient: gradient,
-      });
-
-      this.deactivate();
-    }
+// 漸層選取器的主要類
+class GradientPicker {
+  constructor() {
+    console.log("[GradientPicker] Initializing...");
+    this.isActive = false;
+    this.overlay = null;
+    this.selectedElement = null;
+    this.init();
   }
 
-  // 將實例保存到全局變量
-  window.gradientPicker = new GradientPicker();
+  init() {
+    console.log("[GradientPicker] Running init...");
+    this.createOverlay();
+    this.bindMessageListener();
+    console.log("[GradientPicker] Initialization complete");
+  }
+
+  createOverlay() {
+    console.log("[GradientPicker] Creating overlay...");
+
+    // 創建覆蓋層容器
+    this.overlay = document.createElement("div");
+    this.overlay.id = "gradient-hunter-overlay";
+
+    // 創建工具欄
+    const toolbar = document.createElement("div");
+    toolbar.className = "gradient-hunter-toolbar";
+    toolbar.innerHTML = `
+        <button id="gh-close-picker" class="gh-button">取消</button>
+        <span class="gh-instructions">移動滑鼠到漸層元素上並點擊選取</span>
+        <button id="gh-confirm-pick" class="gh-button gh-button-primary">確認選擇</button>
+    `;
+
+    this.overlay.appendChild(toolbar);
+
+    // 添加樣式
+    const style = document.createElement("style");
+    style.textContent = `
+        #gradient-hunter-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 2147483646;
+            cursor: crosshair;
+            display: none;
+        }
+
+        .gradient-hunter-toolbar {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #FFFFFF;
+            border-radius: 8px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 2147483647;
+        }
+
+        .gh-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .gh-button:hover {
+            opacity: 0.9;
+        }
+
+        #gh-close-picker {
+            background: #f44336;
+            color: white;
+        }
+
+        #gh-confirm-pick {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .gh-instructions {
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .gradient-hunter-highlight {
+            outline: 3px solid #4CAF50 !important;
+            outline-offset: 2px !important;
+            transition: outline 0.2s ease !important;
+        }
+    `;
+
+    // 添加到頁面
+    document.head.appendChild(style);
+    document.body.appendChild(this.overlay);
+    console.log("[GradientPicker] Overlay created and added to page");
+
+    // 綁定事件
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    console.log("[GradientPicker] Binding events...");
+
+    // 滑鼠移動事件
+    this.overlay.addEventListener("mousemove", e => {
+      const element = document.elementFromPoint(e.clientX, e.clientY);
+
+      // 移除之前的高亮
+      if (this.selectedElement) {
+        this.selectedElement.classList.remove("gradient-hunter-highlight");
+      }
+
+      // 檢查元素是否包含漸層
+      if (this.hasGradient(element)) {
+        this.selectedElement = element;
+        element.classList.add("gradient-hunter-highlight");
+      }
+    });
+
+    // 點擊事件
+    this.overlay.addEventListener("click", e => {
+      const element = document.elementFromPoint(e.clientX, e.clientY);
+
+      if (this.hasGradient(element)) {
+        this.selectedElement = element;
+        element.classList.add("gradient-hunter-highlight");
+      }
+    });
+
+    // 關閉按鈕事件
+    document.getElementById("gh-close-picker").addEventListener("click", () => {
+      console.log("[GradientPicker] Close button clicked");
+      this.stop();
+    });
+
+    // 確認選擇按鈕事件
+    document.getElementById("gh-confirm-pick").addEventListener("click", () => {
+      console.log("[GradientPicker] Confirm button clicked");
+      if (this.selectedElement) {
+        const gradientInfo = this.extractGradientInfo(this.selectedElement);
+        console.log("[GradientPicker] Gradient selected:", gradientInfo);
+
+        // 發送消息到背景腳本
+        chrome.runtime.sendMessage({
+          type: "GRADIENT_SELECTED",
+          gradient: gradientInfo,
+        });
+        this.stop();
+      }
+    });
+  }
+
+  bindMessageListener() {
+    console.log("[GradientPicker] Binding message listener...");
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      console.log("[GradientPicker] Received message:", message);
+      if (message.type === "START_PICKER" || message.type === "ACTIVATE_PICKER") {
+        this.start();
+        sendResponse({ success: true });
+      }
+    });
+  }
+
+  hasGradient(element) {
+    if (!element) return false;
+    const style = window.getComputedStyle(element);
+    const hasGradient = style.backgroundImage.includes("gradient");
+    console.log("[GradientPicker] Checking gradient for element:", element, hasGradient);
+    return hasGradient;
+  }
+
+  extractGradientInfo(element) {
+    const style = window.getComputedStyle(element);
+    return {
+      gradient: style.backgroundImage,
+      element: {
+        tagName: element.tagName,
+        className: element.className,
+        id: element.id,
+      },
+    };
+  }
+
+  start() {
+    console.log("[GradientPicker] Starting picker...");
+    this.isActive = true;
+    this.overlay.style.display = "block";
+  }
+
+  stop() {
+    console.log("[GradientPicker] Stopping picker...");
+    this.isActive = false;
+    this.overlay.style.display = "none";
+    if (this.selectedElement) {
+      this.selectedElement.classList.remove("gradient-hunter-highlight");
+      this.selectedElement = null;
+    }
+  }
 }
 
-// 消息流程 2: Background -> Content
-// 監聽來自背景腳本的 ACTIVATE_PICKER 消息
-// 當收到消息時，激活選取器
-console.log("設置消息監聽器");
-
-// 用於追蹤已處理的消息
-const processedMessages = new Set();
-
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log("收到消息:", request);
-
-  // 檢查是否已處理過該消息
-  if (request.timestamp && processedMessages.has(request.timestamp)) {
-    console.log("消息已經處理過，跳過");
-    sendResponse({ status: "already_processed" });
-    return true;
-  }
-
-  if (request.type === "ACTIVATE_PICKER") {
-    console.log("收到激活選取器消息");
-
-    try {
-      if (window.gradientPicker) {
-        console.log("找到 gradientPicker 實例，開始激活");
-        window.gradientPicker.activate();
-
-        // 記錄已處理的消息
-        if (request.timestamp) {
-          processedMessages.add(request.timestamp);
-          // 清理舊的時間戳（保留最近 5 分鐘的記錄）
-          const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
-          processedMessages.forEach(timestamp => {
-            if (timestamp < fiveMinutesAgo) {
-              processedMessages.delete(timestamp);
-            }
-          });
-        }
-
-        sendResponse({ status: "success" });
-      } else {
-        console.error("gradientPicker 實例不存在");
-        sendResponse({ status: "error", message: "gradientPicker not found" });
-      }
-    } catch (error) {
-      console.error("激活選取器時發生錯誤:", error);
-      sendResponse({ status: "error", message: error.message });
-    }
-  }
-  return true;
-});
-
-console.log("Content script 加載完成");
+// 初始化選取器
+console.log("[GradientPicker] Creating instance...");
+const gradientPicker = new GradientPicker();
+console.log("[GradientPicker] Instance created");

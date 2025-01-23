@@ -40,43 +40,66 @@ function updateUI(gradient) {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   try {
+    console.log("[Popup] Initializing...");
+
     const pickButton = document.querySelector('.tool-btn[title="開始選取"]');
-    const saveButton = document.querySelector('.tool-btn[title="儲存"]');
-    const settingsButton = document.querySelector('.tool-btn[title="設定"]');
+    if (!pickButton) {
+      throw new Error("Pick button not found");
+    }
 
-    // 消息流程 1: Popup -> Background
-    // 當用戶點擊選取按鈕時，發送 REQUEST_START_PICKING 消息到背景腳本
-    // 請求開始選取操作
-    pickButton.addEventListener("click", () => {
-      chrome.runtime.sendMessage({ type: "REQUEST_START_PICKING" });
-      //   window.close();
-    });
+    // 當用戶點擊選取按鈕時
+    pickButton.addEventListener("click", async () => {
+      console.log("[Popup] Pick button clicked");
 
-    //   // 綁定複製按鈕事件
-    //   document.querySelector(".copy-btn").addEventListener("click", () => {
-    //     const code = document.querySelector(".code-block code").textContent;
-    //     console.log("code:", code);
-    //     navigator.clipboard.writeText(code);
-    //   });
+      try {
+        // 獲取當前標籤頁
+        const [tab] = await chrome.tabs.query({
+          active: true,
+          currentWindow: true,
+        });
 
-    //   // 檢查是否有最近選取的漸層
-    //   chrome.runtime.sendMessage({ type: "GET_LAST_GRADIENT" }, response => {
-    //     if (response && response.gradient) {
-    //       updateUI(response.gradient);
-    //     }
-    //   });
+        if (!tab) {
+          throw new Error("No active tab found");
+        }
 
-    // 消息流程 4: Background -> Popup
-    // 監聽來自背景腳本的 UPDATE_GRADIENT 消息
-    // 當收到新的漸層數據時，更新 UI 顯示
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      if (request.type === "UPDATE_GRADIENT" && request.gradient) {
-        updateUI(request.gradient);
+        console.log("[Popup] Active tab:", tab);
+
+        // 檢查是否是特殊頁面
+        if (tab.url.startsWith("chrome://") || tab.url.startsWith("chrome-extension://")) {
+          alert("無法在瀏覽器內部頁面使用選取器");
+          return;
+        }
+
+        // 發送開始選取請求
+        const response = await chrome.runtime.sendMessage({
+          type: "REQUEST_START_PICKING",
+          tabId: tab.id,
+        });
+
+        console.log("[Popup] Start picking response:", response);
+
+        // 關閉 popup
+        window.close();
+      } catch (error) {
+        console.error("[Popup] Error starting picker:", error);
+        alert("啟動選取器時發生錯誤");
       }
     });
+
+    // 監聽來自背景腳本的消息
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      console.log("[Popup] Received message:", request);
+
+      if (request.type === "UPDATE_GRADIENT" && request.gradient) {
+        updateUI(request.gradient);
+        sendResponse({ success: true });
+      }
+    });
+
+    console.log("[Popup] Initialization complete");
   } catch (error) {
-    console.error("[ERROR] Error in popup initialization:", error);
+    console.error("[Popup] Error in initialization:", error);
   }
 });
