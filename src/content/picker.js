@@ -32,6 +32,9 @@
       this.bindMessageListener();
       this.bindUIEvents();
       this.initDraggable();
+
+      // 初始化時就顯示引導 UI
+      this.updateGradientUI(null);
     }
 
     // 初始化拖動功能
@@ -297,6 +300,85 @@
       if (previewSection) {
         // 更新預覽
         const preview = previewSection.querySelector(".gh-gradient-preview");
+
+        if (!gradientInfo) {
+          // 初始狀態：顯示引導 UI
+          preview.style.backgroundImage = "linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%)";
+          preview.innerHTML = `
+            <div class="gh-empty-state">
+              <div class="gh-empty-state-content">
+                <div class="gh-empty-state-icon">
+                  <div class="gh-icon-ring"></div>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M8 12L12 16L16 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 8L12 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="gh-empty-state-text">
+                  <h2>點擊任意漸層元素</h2>
+                  <p>在頁面上尋找並點擊含有漸層效果的元素</p>
+                </div>
+                <div class="gh-empty-state-tips">
+                  <span class="gh-tip">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    支援多種漸層類型
+                  </span>
+                  <span class="gh-tip">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    一鍵複製 CSS 代碼
+                  </span>
+                </div>
+              </div>
+            </div>
+          `;
+
+          // 更新漸層資訊為引導文字
+          const info = previewSection.querySelector(".gh-gradient-info");
+          info.innerHTML = `
+            <span class="gh-gradient-type">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M12 8V16M12 8L8 12M12 8L16 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="gh-status-text">準備開始</span>
+            </span>
+            <span class="gh-gradient-angle">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="gh-action-text">點擊以擷取</span>
+            </span>
+          `;
+
+          // 清空顏色停駐點區域
+          if (colorStops) {
+            colorStops.innerHTML = `
+              <div class="gh-empty-stops">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M7 4V20M17 4V20M3 8H21M3 16H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span>等待選取漸層</span>
+              </div>
+            `;
+          }
+
+          // 清空代碼區域
+          if (codeBlock) {
+            codeBlock.innerHTML = `<span class="gh-code-comment">/* 點擊頁面上的漸層元素後，將自動生成 CSS 代碼 */</span>`;
+          }
+
+          return;
+        }
+
+        // 正常狀態：顯示擷取的漸層
+        preview.innerHTML = "";
         preview.style.backgroundImage = gradientInfo.originalValue;
 
         // 更新漸層資訊
@@ -307,7 +389,7 @@
         `;
       }
 
-      if (colorStops) {
+      if (colorStops && gradientInfo) {
         console.log("gradientInfo.gradient.stops:", gradientInfo);
 
         // 更新顏色停駐點
@@ -323,7 +405,7 @@
           .join("");
       }
 
-      if (codeBlock) {
+      if (codeBlock && gradientInfo) {
         // 更新代碼顯示
         const cssCode = `background: ${gradientInfo.originalValue};`;
         codeBlock.textContent = cssCode;

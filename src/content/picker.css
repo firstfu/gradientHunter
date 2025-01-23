@@ -73,13 +73,14 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: transparent;
+  background: rgba(0, 0, 0, 0.1);
   z-index: 2147483646;
   cursor: crosshair;
   display: none;
   pointer-events: auto;
   opacity: 0;
   transition: var(--gh-transition);
+  backdrop-filter: none;
 }
 
 #gradient-hunter-overlay.active {
@@ -107,6 +108,7 @@
   opacity: 0;
   will-change: transform, opacity;
   transition: opacity var(--gh-transition);
+  outline: none !important;
 }
 
 #gradient-hunter-toolbar.active {
@@ -156,28 +158,244 @@
 .gh-preview-section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .gh-gradient-preview {
-  height: 100px;
+  height: 160px;
   border-radius: var(--gh-radius-sm);
   border: 1px solid var(--gh-border);
   transition: var(--gh-transition);
   box-shadow: var(--gh-shadow-sm);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.gh-gradient-preview:hover {
-  transform: scale(1.01);
-  box-shadow: var(--gh-shadow);
+/* 空狀態樣式 */
+.gh-empty-state {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 32px;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(12px);
+  color: var(--gh-text);
+  text-align: center;
+  border-radius: var(--gh-radius-sm);
+  pointer-events: none;
 }
 
+.gh-empty-state * {
+  pointer-events: auto;
+}
+
+.gh-empty-state-icon {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.gh-icon-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 2px solid var(--gh-primary-light);
+  border-radius: 50%;
+  opacity: 0.5;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.gh-empty-state-icon svg {
+  position: relative;
+  z-index: 1;
+  background: var(--gh-surface);
+  padding: 16px;
+  border-radius: 50%;
+  box-shadow: var(--gh-shadow-sm);
+  color: var(--gh-primary);
+  animation: float 3s ease-in-out infinite;
+  width: 48px;
+  height: 48px;
+}
+
+.gh-empty-state-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 260px;
+  margin: 0 auto;
+}
+
+.gh-empty-state h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--gh-text);
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--gh-primary) 0%, var(--gh-primary-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.4;
+}
+
+.gh-empty-state-description {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.gh-empty-state p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--gh-text-secondary);
+  line-height: 1.6;
+}
+
+.gh-empty-state-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.gh-tip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--gh-text-secondary);
+  padding: 10px 14px;
+  background: var(--gh-surface);
+  border-radius: var(--gh-radius-sm);
+  transition: var(--gh-transition);
+  border: 1px solid var(--gh-border);
+  width: 100%;
+}
+
+.gh-tip svg {
+  flex-shrink: 0;
+  color: var(--gh-primary);
+}
+
+.gh-tip:hover {
+  background: var(--gh-surface-hover);
+  transform: translateX(4px);
+  border-color: var(--gh-primary-light);
+}
+
+/* 空狀態的顏色停駐點 */
+.gh-empty-stops {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  background: var(--gh-surface);
+  border-radius: var(--gh-radius-sm);
+  color: var(--gh-text-secondary);
+  font-size: 14px;
+  border: 1px dashed var(--gh-border);
+  margin-top: 8px;
+}
+
+.gh-empty-stops svg {
+  color: var(--gh-text-secondary);
+  opacity: 0.5;
+}
+
+/* 代碼註釋樣式 */
+.gh-code-comment {
+  color: var(--gh-text-secondary);
+  font-style: italic;
+}
+
+/* 狀態文字樣式 */
+.gh-status-text,
+.gh-action-text {
+  position: relative;
+  display: inline-block;
+}
+
+.gh-status-text::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--gh-primary-light);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.gh-gradient-info span:hover .gh-status-text::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.2;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* 更新漸層資訊樣式 */
 .gh-gradient-info {
   display: flex;
   justify-content: space-between;
   font-size: 13px;
   color: var(--gh-text-secondary);
   padding: 0 4px;
+}
+
+.gh-gradient-info span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gh-gradient-info svg {
+  color: var(--gh-primary);
+}
+
+.gh-gradient-preview:hover {
+  transform: scale(1.01);
+  box-shadow: var(--gh-shadow);
 }
 
 /* 顏色停駐點 */
@@ -224,6 +442,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  outline: none !important;
 }
 
 .gh-color-value:hover,
@@ -242,6 +461,7 @@
   border: 1px solid var(--gh-border);
   border-radius: 4px;
   transition: var(--gh-transition);
+  outline: none !important;
 }
 
 .gh-color-stop input[type="checkbox"]:checked {
@@ -269,20 +489,51 @@
   color: var(--gh-text);
 }
 
+/* 工具列按鈕 */
+.gh-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--gh-text-secondary);
+  border-radius: var(--gh-radius-sm);
+  cursor: pointer;
+  transition: var(--gh-transition);
+  outline: none !important;
+}
+
+.gh-button:hover {
+  background: var(--gh-surface-hover);
+  color: var(--gh-text);
+}
+
+.gh-button:active {
+  background: var(--gh-surface);
+  transform: translateY(1px);
+}
+
+/* 複製按鈕 */
 .gh-copy-btn {
-  padding: 4px;
+  padding: 6px;
   background: var(--gh-surface);
   border: 1px solid var(--gh-border);
   border-radius: var(--gh-radius-sm);
   cursor: pointer;
   color: var(--gh-text-secondary);
   transition: var(--gh-transition);
+  outline: none !important;
 }
 
 .gh-copy-btn:hover {
   color: var(--gh-text);
   background: var(--gh-surface-hover);
   border-color: var(--gh-primary-light);
+}
+
+.gh-copy-btn:active {
+  transform: translateY(1px);
 }
 
 .gh-code-block {
@@ -342,4 +593,39 @@
     --gh-text: var(--gh-dark-text);
     --gh-text-secondary: var(--gh-dark-text-secondary);
   }
+}
+
+/* 自定義焦點樣式 */
+.gh-color-value:focus,
+.gh-tip:focus,
+.gh-button:focus,
+.gh-copy-btn:focus {
+  border-color: var(--gh-primary-light);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+
+.gh-empty-state-text {
+  text-align: center;
+  max-width: 240px;
+  margin: 0 auto;
+  font-size: 14px;
+}
+
+.gh-empty-state-text h2 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--gh-text);
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--gh-primary) 0%, var(--gh-primary-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.4;
+}
+
+.gh-empty-state-text p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--gh-text-secondary);
+  line-height: 1.6;
 }
