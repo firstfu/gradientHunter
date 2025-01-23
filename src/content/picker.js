@@ -41,58 +41,70 @@ if (window.gradientPicker) {
     }
 
     createTooltip() {
-      console.log("創建懸浮提示元素");
-
+      console.log("開始創建懸浮提示元素");
       // 創建懸浮提示元素
       this.tooltip = document.createElement("div");
       this.tooltip.className = "picker-tooltip";
+      this.tooltip.style.cssText = `
+        position: fixed;
+        z-index: 2147483647;
+        display: none;
+        padding: 8px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      `;
       this.tooltip.innerHTML = `
-                    <div class="tooltip-content">
-                        <div class="element-info">
-                            <span class="element-tag"></span>
-                            <span class="element-class"></span>
-                        </div>
-                        <div class="gradient-preview">
-                            <div class="preview-box"></div>
-                            <span class="gradient-value"></span>
-                        </div>
-                    </div>
-                    <div class="tooltip-actions">
-                        <button class="action-btn pick-btn" title="選取此元素">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            </svg>
-                            選取
-                        </button>
-                        <button class="action-btn cancel-btn" title="取消選取">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            </svg>
-                            取消
-                        </button>
-                    </div>
-                `;
+        <div class="tooltip-content">
+          <div class="element-info">
+            <span class="element-tag"></span>
+            <span class="element-class"></span>
+          </div>
+          <div class="gradient-preview">
+            <div class="preview-box"></div>
+            <span class="gradient-value"></span>
+          </div>
+        </div>
+        <div class="tooltip-actions">
+          <button class="action-btn pick-btn" title="選取此元素">選取</button>
+          <button class="action-btn cancel-btn" title="取消選取">取消</button>
+        </div>
+      `;
       document.body.appendChild(this.tooltip);
+      console.log("懸浮提示元素創建完成");
 
       // 綁定按鈕事件
-      this.tooltip.querySelector(".pick-btn").addEventListener("click", () => this.pickElement());
-      this.tooltip.querySelector(".cancel-btn").addEventListener("click", () => this.deactivate());
+      const pickBtn = this.tooltip.querySelector(".pick-btn");
+      const cancelBtn = this.tooltip.querySelector(".cancel-btn");
+
+      pickBtn.addEventListener("click", e => {
+        e.stopPropagation();
+        this.pickElement();
+      });
+
+      cancelBtn.addEventListener("click", e => {
+        e.stopPropagation();
+        this.deactivate();
+      });
     }
 
     createOverlay() {
-      // 創建選取框
+      console.log("開始創建選取框");
       this.overlay = document.createElement("div");
       this.overlay.className = "picker-overlay";
-      this.overlay.innerHTML = `
-                    <div class="overlay-border overlay-border-top"></div>
-                    <div class="overlay-border overlay-border-right"></div>
-                    <div class="overlay-border overlay-border-bottom"></div>
-                    <div class="overlay-border overlay-border-left"></div>
-                `;
+      this.overlay.style.cssText = `
+        position: fixed;
+        z-index: 2147483646;
+        display: none;
+        pointer-events: none;
+        border: 2px solid #0066cc;
+      `;
       document.body.appendChild(this.overlay);
+      console.log("選取框創建完成");
     }
 
     bindEvents() {
+      console.log("開始綁定事件");
       // 移除舊的事件監聽器
       document.removeEventListener("mousemove", this._handleMouseMove);
       document.removeEventListener("keydown", this._handleKeyDown);
@@ -104,6 +116,7 @@ if (window.gradientPicker) {
       // 添加新的事件監聽器
       document.addEventListener("mousemove", this._handleMouseMove);
       document.addEventListener("keydown", this._handleKeyDown);
+      console.log("事件綁定完成");
     }
 
     handleMouseMove(event) {
@@ -133,7 +146,7 @@ if (window.gradientPicker) {
 
     getGradient(element) {
       const style = window.getComputedStyle(element);
-      const properties = [style.background, style.backgroundImage, style.getPropertyValue("background"), style.getPropertyValue("background-image")];
+      const properties = [style.background, style.backgroundImage];
 
       for (const prop of properties) {
         if (!prop) continue;
@@ -198,18 +211,60 @@ if (window.gradientPicker) {
     }
 
     activate() {
+      console.log("開始激活選取器");
       this.isActive = true;
       document.body.style.cursor = "crosshair";
-      this.tooltip.style.display = "block";
-      this.overlay.style.display = "block";
+
+      // 確保 UI 元素存在
+      if (!this.tooltip || !this.overlay) {
+        console.log("UI 元素不存在，重新初始化");
+        this.init();
+      }
+
+      // 顯示 UI 元素
+      if (this.tooltip) {
+        this.tooltip.style.display = "block";
+        this.tooltip.style.opacity = "1";
+        this.tooltip.style.visibility = "visible";
+        this.tooltip.style.pointerEvents = "auto";
+        console.log("顯示懸浮提示");
+      } else {
+        console.error("tooltip 元素不存在");
+      }
+
+      if (this.overlay) {
+        this.overlay.style.display = "block";
+        this.overlay.style.opacity = "1";
+        this.overlay.style.visibility = "visible";
+        console.log("顯示選取框");
+      } else {
+        console.error("overlay 元素不存在");
+      }
+
+      console.log("選取器激活完成，UI 狀態：", {
+        isActive: this.isActive,
+        tooltipDisplay: this.tooltip?.style.display,
+        overlayDisplay: this.overlay?.style.display,
+      });
     }
 
     deactivate() {
+      console.log("開始停用選取器");
       this.isActive = false;
       document.body.style.cursor = "";
-      this.tooltip.style.display = "none";
-      this.overlay.style.display = "none";
+
+      if (this.tooltip) {
+        this.tooltip.style.display = "none";
+        console.log("隱藏懸浮提示");
+      }
+
+      if (this.overlay) {
+        this.overlay.style.display = "none";
+        console.log("隱藏選取框");
+      }
+
       this.hoveredElement = null;
+      console.log("選取器停用完成");
     }
 
     pickElement() {

@@ -29,8 +29,6 @@ chrome.tabs.onRemoved.addListener(tabId => {
 
 // TODO: 監聽來自彈出窗口的消息
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log("收到 listen 消息:", request.type);
-
   if (request.type === "REQUEST_START_PICKING") {
     handleStartPicking()
       .then(response => {
@@ -41,7 +39,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       });
     return true; // 保持消息通道開啟
   } else if (request.type === "GRADIENT_PICKED") {
-    console.log("收到 GRADIENT_PICKED 消息");
     handleGradientPicked(request)
       .then(response => {
         sendResponse(response);
@@ -58,8 +55,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // 處理開始選取的請求
 async function handleStartPicking() {
-  console.log("處理請求: handleStartPicking");
-
   try {
     // 獲取當前視窗
     const currentWindow = await chrome.windows.getCurrent();

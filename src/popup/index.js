@@ -6,7 +6,6 @@
 
 // 更新 UI 顯示
 function updateUI(gradient) {
-  console.log("更新 UI 顯示");
   if (!gradient) return;
 
   // 更新預覽區域
@@ -51,14 +50,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // 當用戶點擊選取按鈕時，發送 REQUEST_START_PICKING 消息到背景腳本
     // 請求開始選取操作
     pickButton.addEventListener("click", () => {
-      console.log("綁定選取按鈕事件");
       chrome.runtime.sendMessage({ type: "REQUEST_START_PICKING" });
       //   window.close();
     });
 
     //   // 綁定複製按鈕事件
     //   document.querySelector(".copy-btn").addEventListener("click", () => {
-    //     console.log("複製代碼");
     //     const code = document.querySelector(".code-block code").textContent;
     //     console.log("code:", code);
     //     navigator.clipboard.writeText(code);
@@ -66,7 +63,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     //   // 檢查是否有最近選取的漸層
     //   chrome.runtime.sendMessage({ type: "GET_LAST_GRADIENT" }, response => {
-    //     console.log("檢查是否有最近選取的漸層");
     //     if (response && response.gradient) {
     //       updateUI(response.gradient);
     //     }
@@ -77,7 +73,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // 當收到新的漸層數據時，更新 UI 顯示
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       if (request.type === "UPDATE_GRADIENT" && request.gradient) {
-        console.log("更新 UI 顯示");
         updateUI(request.gradient);
       }
     });
