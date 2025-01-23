@@ -316,8 +316,7 @@
             stop => `
           <div class="gh-color-stop">
             <div class="gh-color-preview" style="background-color: ${stop.color}"></div>
-            <input type="text" value="${stop.color}" class="gh-color-value" readonly />
-            ${stop.position ? `<input type="text" value="${stop.position}" class="gh-stop-position" readonly />` : ""}
+            <input type="text" value="${stop.color}${stop.position ? " " + stop.position : ""}" class="gh-color-value" readonly />
           </div>
         `
           )
