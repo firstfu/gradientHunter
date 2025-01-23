@@ -6,45 +6,49 @@
 
 /* 全局樣式 */
 :root {
-  /* 主題色 */
-  --gh-primary: #1a1a1a;
-  --gh-primary-hover: #4f46e5;
-  --gh-success: #22c55e;
+  /* 主題色 - 使用更現代的配色 */
+  --gh-primary: #4f46e5;
+  --gh-primary-hover: #6366f1;
+  --gh-primary-light: #818cf8;
+  --gh-success: #10b981;
   --gh-warning: #f59e0b;
   --gh-error: #ef4444;
 
-  /* 中性色 */
+  /* 中性色 - 更柔和的色調 */
   --gh-bg: #ffffff;
-  --gh-surface: #f9fafb;
-  --gh-border: #e5e7eb;
-  --gh-text: #1f2937;
-  --gh-text-secondary: #6b7280;
+  --gh-surface: #f8fafc;
+  --gh-surface-hover: #f1f5f9;
+  --gh-border: #e2e8f0;
+  --gh-text: #0f172a;
+  --gh-text-secondary: #64748b;
 
-  /* 深色主題 */
-  --gh-dark-bg: #1f2937;
-  --gh-dark-surface: #374151;
-  --gh-dark-border: #4b5563;
-  --gh-dark-text: #f9fafb;
-  --gh-dark-text-secondary: #9ca3af;
+  /* 深色主題 - 更精緻的深色配色 */
+  --gh-dark-bg: #1e293b;
+  --gh-dark-surface: #334155;
+  --gh-dark-surface-hover: #475569;
+  --gh-dark-border: #475569;
+  --gh-dark-text: #f1f5f9;
+  --gh-dark-text-secondary: #94a3b8;
 
-  /* 尺寸 */
-  --gh-radius: 8px;
-  --gh-radius-sm: 6px;
-  --gh-radius-lg: 16px;
+  /* 尺寸 - 更現代的圓角 */
+  --gh-radius: 12px;
+  --gh-radius-sm: 8px;
+  --gh-radius-lg: 20px;
 
-  /* 效果 */
-  --gh-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  --gh-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --gh-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  /* 效果 - 更精緻的陰影 */
+  --gh-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --gh-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --gh-shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 
-  /* 動畫 */
-  --gh-transition: all 0.2s ease;
+  /* 動畫 - 更流暢的過渡效果 */
+  --gh-transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 深色主題 */
 [data-theme="dark"] {
   --gh-bg: var(--gh-dark-bg);
   --gh-surface: var(--gh-dark-surface);
+  --gh-surface-hover: var(--gh-dark-surface-hover);
   --gh-border: var(--gh-dark-border);
   --gh-text: var(--gh-dark-text);
   --gh-text-secondary: var(--gh-dark-text-secondary);
@@ -69,11 +73,17 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.1);
+  background: transparent;
   z-index: 2147483646;
   cursor: crosshair;
   display: none;
   pointer-events: auto;
+  opacity: 0;
+  transition: var(--gh-transition);
+}
+
+#gradient-hunter-overlay.active {
+  opacity: 1;
 }
 
 /* 工具列 */
@@ -84,29 +94,54 @@
   width: 320px;
   background: var(--gh-bg);
   border-radius: var(--gh-radius);
-  box-shadow: var(--gh-shadow);
+  box-shadow: var(--gh-shadow-lg);
   z-index: 2147483647;
   pointer-events: auto;
   user-select: none;
   display: none;
   flex-direction: column;
   overflow: hidden;
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--gh-border);
+  transform: translateY(-10px);
+  opacity: 0;
+  will-change: transform, opacity;
+  transition: opacity var(--gh-transition);
+}
+
+#gradient-hunter-toolbar.active {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+#gradient-hunter-toolbar.dragging {
+  transition: none;
+  will-change: transform;
+  cursor: grabbing !important;
 }
 
 /* 工具列頭部 */
 .gh-toolbar-header {
+  cursor: grab;
+  touch-action: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
+  padding: 12px 16px;
+  background: var(--gh-surface);
   border-bottom: 1px solid var(--gh-border);
 }
 
 .gh-toolbar-header h1 {
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--gh-text);
+  letter-spacing: -0.02em;
+}
+
+.gh-toolbar-header:active {
+  cursor: grabbing;
 }
 
 /* 主要內容區 */
@@ -126,15 +161,23 @@
 
 .gh-gradient-preview {
   height: 100px;
-  border-radius: 8px;
+  border-radius: var(--gh-radius-sm);
   border: 1px solid var(--gh-border);
+  transition: var(--gh-transition);
+  box-shadow: var(--gh-shadow-sm);
+}
+
+.gh-gradient-preview:hover {
+  transform: scale(1.01);
+  box-shadow: var(--gh-shadow);
 }
 
 .gh-gradient-info {
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--gh-text-secondary);
+  padding: 0 4px;
 }
 
 /* 顏色停駐點 */
@@ -142,44 +185,53 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding: 4px;
 }
 
 .gh-color-stop {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 6px;
+  background: var(--gh-surface);
+  border-radius: var(--gh-radius-sm);
+  transition: var(--gh-transition);
+}
+
+.gh-color-stop:hover {
+  background: var(--gh-surface-hover);
 }
 
 .gh-color-preview {
   width: 24px;
   height: 24px;
-  border-radius: 4px;
+  border-radius: var(--gh-radius-sm);
   border: 1px solid var(--gh-border);
+  transition: var(--gh-transition);
 }
 
 .gh-color-value,
 .gh-stop-position {
-  padding: 4px 8px;
+  padding: 6px 8px;
   border: 1px solid var(--gh-border);
-  border-radius: 4px;
-  font-size: 14px;
+  border-radius: var(--gh-radius-sm);
+  font-size: 13px;
   color: var(--gh-text);
-  background: var(--gh-surface);
+  background: var(--gh-bg);
+  transition: var(--gh-transition);
 }
 
-.gh-color-value {
-  flex: 1;
-}
-
-.gh-stop-position {
-  width: 60px;
+.gh-color-value:hover,
+.gh-stop-position:hover {
+  border-color: var(--gh-primary-light);
 }
 
 /* 代碼輸出 */
 .gh-code-output {
   background: var(--gh-surface);
-  border-radius: 8px;
+  border-radius: var(--gh-radius);
   overflow: hidden;
+  border: 2px solid var(--gh-border);
 }
 
 .gh-code-header {
@@ -187,40 +239,48 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  background: var(--gh-border);
-  font-size: 14px;
-  color: var(--gh-text-secondary);
+  background: var(--gh-surface);
+  border-bottom: 1px solid var(--gh-border);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gh-text);
 }
 
 .gh-copy-btn {
   padding: 4px;
-  background: none;
-  border: none;
+  background: var(--gh-surface);
+  border: 1px solid var(--gh-border);
+  border-radius: var(--gh-radius-sm);
   cursor: pointer;
   color: var(--gh-text-secondary);
+  transition: var(--gh-transition);
 }
 
 .gh-copy-btn:hover {
   color: var(--gh-text);
+  background: var(--gh-surface-hover);
+  border-color: var(--gh-primary-light);
 }
 
 .gh-code-block {
   margin: 0;
   padding: 12px;
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
   font-size: 13px;
   line-height: 1.4;
   color: var(--gh-text);
   white-space: pre-wrap;
+  background: var(--gh-bg);
 }
 
 /* 高亮元素 */
 .gradient-hunter-highlight {
-  outline: 3px solid var(--gh-success) !important;
+  outline: 2px solid var(--gh-primary) !important;
   outline-offset: 2px !important;
-  transition: outline 0.2s ease !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative !important;
   z-index: 2147483646 !important;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1) !important;
 }
 
 /* 響應式設計 */
@@ -229,11 +289,34 @@
     top: auto;
     right: 0;
     bottom: 0;
+    left: 0;
     width: 100%;
-    border-radius: var(--gh-radius) var(--gh-radius) 0 0;
+    border-radius: var(--gh-radius-lg) var(--gh-radius-lg) 0 0;
+    transform: translateY(10px);
+  }
+
+  .gh-main-content {
+    padding: 20px;
+    gap: 20px;
   }
 
   .gh-gradient-preview {
-    height: 140px;
+    height: 160px;
+  }
+
+  .gh-color-stop {
+    padding: 12px;
+  }
+}
+
+/* 深色主題支援 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --gh-bg: var(--gh-dark-bg);
+    --gh-surface: var(--gh-dark-surface);
+    --gh-surface-hover: var(--gh-dark-surface-hover);
+    --gh-border: var(--gh-dark-border);
+    --gh-text: var(--gh-dark-text);
+    --gh-text-secondary: var(--gh-dark-text-secondary);
   }
 }
