@@ -69,6 +69,29 @@ async function handleStartPicking() {
 
     console.log("[Background] Active tab:", tab);
 
+    // 確保內容腳本已注入
+    if (!injectedTabs.has(tab.id)) {
+      console.log("[Background] Injecting content script...");
+      try {
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ["src/content/picker.js"],
+        });
+        await chrome.scripting.insertCSS({
+          target: { tabId: tab.id },
+          files: ["src/content/picker.css"],
+        });
+        injectedTabs.add(tab.id);
+        console.log("[Background] Content script injected successfully");
+      } catch (injectionError) {
+        console.error("[Background] Script injection error:", injectionError);
+        throw new Error("Failed to inject content script");
+      }
+    }
+
+    // 等待一小段時間確保腳本已完全加載
+    await new Promise(resolve => setTimeout(resolve, 100));
+
     // 發送消息到 content script
     await chrome.tabs.sendMessage(tab.id, {
       type: "START_PICKER",
