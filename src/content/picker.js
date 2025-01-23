@@ -121,7 +121,6 @@
       document.getElementById("gh-confirm-pick").addEventListener("click", () => {
         if (this.selectedElement) {
           const gradientInfo = this.extractGradientInfo(this.selectedElement);
-          console.log("[GradientPicker] 選取的漸層資訊:", gradientInfo);
           chrome.runtime.sendMessage({
             type: "GRADIENT_SELECTED",
             gradient: gradientInfo,
@@ -161,11 +160,8 @@
         return;
       }
 
-      console.log("[GradientPicker] 點擊事件:", e);
-
       // 獲取點擊位置下的所有元素
       const elements = document.elementsFromPoint(e.clientX, e.clientY);
-      console.log("[GradientPicker] 點擊位置下的所有元素:", elements);
 
       // 移除之前的高亮
       if (this.selectedElement) {
@@ -186,8 +182,6 @@
           return;
         }
       }
-
-      console.log("[GradientPicker] 沒有找到漸層元素");
     };
 
     // 檢查元素是否包含漸層
@@ -201,13 +195,6 @@
       }
 
       const style = window.getComputedStyle(element);
-
-      // 輸出更多樣式資訊以便偵錯
-      console.log("[GradientPicker] 元素樣式檢查:", {
-        backgroundImage: style.backgroundImage,
-        background: style.background,
-        className: element.className,
-      });
 
       // 檢查各種可能的漸層屬性
       const hasGradient = style.backgroundImage.includes("gradient") || style.background.includes("gradient");
@@ -235,10 +222,8 @@
 
     // 開始選取
     start() {
-      console.log("[GradientPicker start] 當前狀態:", this.isActive);
       if (!this.isActive) {
         this.isActive = true;
-        console.log("[GradientPicker start] 開始選取，綁定點擊事件");
         document.addEventListener("click", this.boundClickHandler, true);
         document.body.style.cursor = "crosshair";
         if (this.toolbar) {

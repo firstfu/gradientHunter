@@ -48,12 +48,9 @@ function updateUI(gradient) {
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    console.log("[Popup] Initializing...");
-
     // 請求最後選取的漸層資訊
     const response = await new Promise(resolve => {
       chrome.runtime.sendMessage({ type: "GET_LAST_GRADIENT" }, response => {
-        console.log("[Popup] Received last gradient response:", response);
         resolve(response);
       });
     });
@@ -65,7 +62,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (response && response.success && response.gradient) {
-      console.log("[Popup] Updating UI with gradient:", response.gradient);
       updateUI(response.gradient);
     }
 
@@ -76,8 +72,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 當用戶點擊選取按鈕時
     pickButton.addEventListener("click", async () => {
-      console.log("[Popup] Pick button clicked");
-
       try {
         // 獲取當前標籤頁
         const [tab] = await chrome.tabs.query({
@@ -88,8 +82,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!tab) {
           throw new Error("No active tab found");
         }
-
-        console.log("[Popup] Active tab:", tab);
 
         // 檢查是否是特殊頁面
         if (tab.url.startsWith("chrome://") || tab.url.startsWith("chrome-extension://")) {
@@ -103,8 +95,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           tabId: tab.id,
         });
 
-        console.log("[Popup] Start picking response:", response);
-
         // 關閉 popup
         window.close();
       } catch (error) {
@@ -115,8 +105,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 設置消息監聽器
     const messageListener = (request, sender, sendResponse) => {
-      console.log("[Popup] Received message:", request);
-
       if (request.type === "UPDATE_GRADIENT" && request.gradient) {
         updateUI(request.gradient);
         sendResponse({ success: true });
@@ -131,8 +119,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.addEventListener("unload", () => {
       chrome.runtime.onMessage.removeListener(messageListener);
     });
-
-    console.log("[Popup] Initialization complete");
   } catch (error) {
     console.error("[Popup] Error in initialization:", error);
   }

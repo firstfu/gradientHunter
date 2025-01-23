@@ -29,12 +29,9 @@ chrome.tabs.onRemoved.addListener(tabId => {
 
 // 監聽來自彈出窗口的消息
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log("[Background] Received message:", request);
-
   if (request.type === "REQUEST_START_PICKING") {
     handleStartPicking()
       .then(response => {
-        console.log("[Background] Start picking response:", response);
         sendResponse(response);
       })
       .catch(error => {
@@ -45,7 +42,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   } else if (request.type === "GRADIENT_SELECTED") {
     handleGradientSelected(request)
       .then(response => {
-        console.log("[Background] Gradient selected response:", response);
         sendResponse(response);
       })
       .catch(error => {
@@ -55,7 +51,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   } else if (request.type === "GET_LAST_GRADIENT") {
     // 回傳最後選取的漸層
+
+    console.log("===================================");
     console.log("[Background] Sending last gradient:", lastPickedGradient);
+    console.log("===================================");
+
     sendResponse({
       success: true,
       gradient: lastPickedGradient,
@@ -66,7 +66,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // 處理開始選取的請求
 async function handleStartPicking() {
-  console.log("[Background] Handling start picking request");
   try {
     // 獲取當前標籤頁
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -75,11 +74,8 @@ async function handleStartPicking() {
       throw new Error("No active tab found");
     }
 
-    console.log("[Background] Active tab:", tab);
-
     // 確保內容腳本已注入
     if (!injectedTabs.has(tab.id)) {
-      console.log("[Background] Injecting content script...");
       try {
         await chrome.scripting.executeScript({
           target: { tabId: tab.id },
@@ -90,7 +86,6 @@ async function handleStartPicking() {
           files: ["src/content/picker.css"],
         });
         injectedTabs.add(tab.id);
-        console.log("[Background] Content script injected successfully");
       } catch (injectionError) {
         console.error("[Background] Script injection error:", injectionError);
         throw new Error("Failed to inject content script");
@@ -114,26 +109,21 @@ async function handleStartPicking() {
 
 // 處理漸層選取完成
 async function handleGradientSelected(request) {
-  console.log("[Background] Handling gradient selected 處理漸層選取完成:", request);
-
   // 儲存選取的漸層
   lastPickedGradient = request.gradient;
 
   // 通知 popup 更新 UI
   try {
     // 檢查 popup 是否開啟
-    const views = chrome.extension.getViews({ type: "popup" });
+    const views = chrome.runtime.getViews({ type: "popup" });
     if (views.length > 0) {
       await chrome.runtime.sendMessage({
         type: "UPDATE_GRADIENT",
         gradient: lastPickedGradient,
       });
-      console.log("[Background] Update gradient message sent to popup");
-    } else {
-      console.log("[Background] Popup is not open, skipping message");
     }
   } catch (error) {
-    console.log("[Background] Error sending message to popup:", error);
+    console.error("[Background] Error sending message to popup:", error);
   }
 
   return { success: true };
