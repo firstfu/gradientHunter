@@ -96,6 +96,29 @@
         this.stop();
       });
 
+      // 綁定複製按鈕事件
+      document.querySelector(".gh-copy-btn")?.addEventListener("click", async () => {
+        const codeBlock = document.querySelector(".gh-code-block code");
+        if (codeBlock) {
+          try {
+            await navigator.clipboard.writeText(codeBlock.textContent);
+            // 可以添加複製成功的視覺反饋
+            const copyBtn = document.querySelector(".gh-copy-btn");
+            copyBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>`;
+            setTimeout(() => {
+              copyBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M8 4v12a2 2 0 002 2h8a2 2 0 002-2V7.242a2 2 0 00-.586-1.414l-2.828-2.828A2 2 0 0015.172 2H10a2 2 0 00-2 2z" stroke="currentColor" stroke-width="2"/>
+                <path d="M16 18v2a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h2" stroke="currentColor" stroke-width="2"/>
+              </svg>`;
+            }, 2000);
+          } catch (err) {
+            console.error("複製失敗:", err);
+          }
+        }
+      });
+
       // 確認選擇
       document.getElementById("gh-confirm-pick")?.addEventListener("click", () => {
         if (this.selectedElement) {
