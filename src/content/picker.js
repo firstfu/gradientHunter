@@ -142,6 +142,11 @@
     }
 
     handleClick = e => {
+      // 如果點擊的是工具欄或其子元素，不處理該事件
+      if (e.target.closest(".gradient-hunter-toolbar")) {
+        return;
+      }
+
       // 阻止事件傳播和默認行為
       e.preventDefault();
       e.stopPropagation();
