@@ -125,17 +125,13 @@
       // 確認選擇
       document.getElementById("gh-confirm-pick")?.addEventListener("click", () => {
         if (this.selectedElement) {
-          console.log("[GradientPicker] 確認選擇按鈕被點擊");
           const gradientInfo = this.extractGradientInfo(this.selectedElement);
-          console.log("[GradientPicker] 提取的漸層資訊:", gradientInfo);
           chrome.runtime.sendMessage(
             {
               type: "GRADIENT_SELECTED",
               gradient: gradientInfo,
             },
-            response => {
-              console.log("[GradientPicker] 發送消息的回應:", response);
-            }
+            response => {}
           );
           this.stop();
         }
@@ -153,7 +149,6 @@
     // 處理消息
     handleMessage(message, sender, sendResponse) {
       if (message.type === "START_PICKER" || message.type === "ACTIVATE_PICKER") {
-        console.log("[GradientPicker] 收到開始選取消息");
         this.start();
         sendResponse({ success: true });
       } else if (message.type === "STOP_PICKER") {
@@ -382,8 +377,6 @@
       }
 
       if (colorStops && gradientInfo) {
-        console.log("gradientInfo.gradient.stops:", gradientInfo);
-
         // 更新顏色停駐點
         colorStops.innerHTML = gradientInfo.gradient.stops
           .map(
@@ -448,7 +441,6 @@
 
     // 清理
     cleanup() {
-      console.log("[GradientPicker] 執行清理");
       this.stop();
 
       // 移除事件監聽器

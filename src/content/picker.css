@@ -92,7 +92,9 @@
   position: fixed;
   top: 20px;
   right: 20px;
-  width: 320px;
+  width: 380px;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 40px);
   background: var(--gh-bg);
   border-radius: var(--gh-radius);
   box-shadow: var(--gh-shadow-lg);
@@ -406,8 +408,9 @@
   flex-direction: column;
   gap: 8px;
   padding: 4px;
-  max-height: 200px;
+  max-height: 250px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .gh-color-stop {
@@ -434,7 +437,7 @@
 }
 
 .gh-color-value {
-  width: 100%;
+  width: 95%;
   padding: 6px 8px;
   border: 1px solid var(--gh-border);
   border-radius: var(--gh-radius-sm);

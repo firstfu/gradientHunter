@@ -11,16 +11,12 @@ let lastPickedGradient = null;
 const injectedTabs = new Set();
 
 // 監聽擴充功能安裝事件
-chrome.runtime.onInstalled.addListener(() => {
-  console.log("插件安裝完成");
-});
+chrome.runtime.onInstalled.addListener(() => {});
 
 // 監聽插件圖標點擊事件
 chrome.action.onClicked.addListener(tab => {
   handleStartPicking()
-    .then(response => {
-      console.log("[Background] Picking started successfully");
-    })
+    .then(response => {})
     .catch(error => {
       console.error("[Background] Start picking error:", error);
     });
