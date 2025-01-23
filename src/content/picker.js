@@ -11,6 +11,8 @@
     constructor() {
       this.isActive = false;
       this.selectedElement = null;
+      // 保存事件處理函數的引用
+      this.boundClickHandler = this.handleClick.bind(this);
       this.init();
 
       // 在頁面卸載時清理
@@ -38,6 +40,18 @@
               gap: 16px !important;
               box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
               z-index: 2147483647 !important;
+          }
+
+          .gradient-hunter-overlay {
+              position: fixed !important;
+              top: 0 !important;
+              left: 0 !important;
+              width: 100% !important;
+              height: 100% !important;
+              background: rgba(0, 0, 0, 0.1) !important;
+              z-index: 2147483646 !important;
+              cursor: crosshair !important;
+              display: none !important;
           }
 
           .gh-button {
@@ -73,12 +87,20 @@
               outline: 3px solid #4CAF50 !important;
               outline-offset: 2px !important;
               transition: outline 0.2s ease !important;
+              position: relative !important;
+              z-index: 2147483646 !important;
           }
       `;
       document.head.appendChild(style);
     }
 
     createPickerUI() {
+      // 創建遮罩層
+      const overlay = document.createElement("div");
+      overlay.className = "gradient-hunter-overlay";
+      document.body.appendChild(overlay);
+      this.overlay = overlay;
+
       // 創建工具欄
       const toolbar = document.createElement("div");
       toolbar.className = "gradient-hunter-toolbar";
@@ -120,27 +142,43 @@
     }
 
     handleClick = e => {
-      const element = e.target;
-      console.log("[GradientPicker] 點擊元素:", {
-        tagName: element.tagName,
-        className: element.className,
-        id: element.id,
-        innerHTML: element.innerHTML.substring(0, 100),
-      });
+      // 阻止事件傳播和默認行為
+      e.preventDefault();
+      e.stopPropagation();
+
+      // 確保事件物件存在
+      if (!e) {
+        console.error("[GradientPicker] 沒有收到事件物件");
+        return;
+      }
+
+      console.log("[GradientPicker] 點擊事件>>>>>:", e);
+
+      // 獲取點擊位置下的所有元素
+      const elements = document.elementsFromPoint(e.clientX, e.clientY);
+      console.log("[GradientPicker] 點擊位置下的所有元素:", elements);
 
       // 移除之前的高亮
       if (this.selectedElement) {
         this.selectedElement.classList.remove("gradient-hunter-highlight");
       }
 
-      // 檢查元素是否包含漸層
-      if (this.hasGradient(element)) {
-        this.selectedElement = element;
-        element.classList.add("gradient-hunter-highlight");
-        console.log("[GradientPicker] 找到漸層元素:", element);
-      } else {
-        console.log("[GradientPicker] 沒有找到漸層元素:", element);
+      // 遍歷元素列表，找到第一個具有漸層的元素
+      for (const element of elements) {
+        // 跳過工具欄相關元素
+        if (element.closest(".gradient-hunter-toolbar")) {
+          continue;
+        }
+
+        if (this.hasGradient(element)) {
+          this.selectedElement = element;
+          element.classList.add("gradient-hunter-highlight");
+          console.log("[GradientPicker] 找到漸層元素:", element);
+          return;
+        }
       }
+
+      console.log("[GradientPicker] 沒有找到漸層元素");
     };
 
     // 檢查元素是否包含漸層
@@ -175,12 +213,17 @@
     }
 
     start() {
+      console.log("[GradientPicker start] 當前狀態:", this.isActive);
       if (!this.isActive) {
         this.isActive = true;
-        document.addEventListener("click", this.handleClick);
+        console.log("[GradientPicker start] 開始選取，綁定點擊事件");
+        document.addEventListener("click", this.boundClickHandler, true);
         document.body.style.cursor = "crosshair";
         if (this.toolbar) {
           this.toolbar.style.setProperty("display", "flex", "important");
+        }
+        if (this.overlay) {
+          this.overlay.style.setProperty("display", "block", "important");
         }
       }
     }
@@ -188,10 +231,13 @@
     stop() {
       if (this.isActive) {
         this.isActive = false;
-        document.removeEventListener("click", this.handleClick);
+        document.removeEventListener("click", this.boundClickHandler, true);
         document.body.style.cursor = "";
         if (this.toolbar) {
           this.toolbar.style.setProperty("display", "none", "important");
+        }
+        if (this.overlay) {
+          this.overlay.style.setProperty("display", "none", "important");
         }
 
         if (this.selectedElement) {
@@ -206,6 +252,10 @@
       if (this.toolbar) {
         document.body.removeChild(this.toolbar);
         this.toolbar = null;
+      }
+      if (this.overlay) {
+        document.body.removeChild(this.overlay);
+        this.overlay = null;
       }
       if (this.selectedElement) {
         this.selectedElement.classList.remove("gradient-hunter-highlight");
