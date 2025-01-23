@@ -55,17 +55,29 @@
   position: fixed;
   top: 0;
   left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 2147483647;
+  pointer-events: none;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* 遮罩層 */
+#gradient-hunter-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  pointer-events: none;
-  z-index: 2147483645;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  color: var(--gh-text);
-  line-height: 1.5;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 2147483646;
+  cursor: crosshair;
+  display: none;
+  pointer-events: auto;
 }
 
 /* 工具列 */
-.gh-toolbar {
+#gradient-hunter-toolbar {
   position: fixed;
   top: 20px;
   right: 20px;
@@ -75,173 +87,98 @@
   box-shadow: var(--gh-shadow);
   z-index: 2147483647;
   pointer-events: auto;
+  user-select: none;
+  display: none;
+  flex-direction: column;
   overflow: hidden;
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.gh-toolbar.active {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.gh-toolbar.dragging {
-  opacity: 0.9;
-  cursor: grabbing;
 }
 
 /* 工具列頭部 */
 .gh-toolbar-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  align-items: center;
+  padding: 16px;
   border-bottom: 1px solid var(--gh-border);
 }
 
 .gh-toolbar-header h1 {
   margin: 0;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
-  color: var(--gh-primary);
-}
-
-.gh-tools {
-  display: flex;
-  gap: 8px;
-}
-
-.gh-tool-btn {
-  padding: 4px;
-  border: none;
-  background: transparent;
   color: var(--gh-text);
-  cursor: pointer;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--gh-transition);
-}
-
-.gh-tool-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
 }
 
 /* 主要內容區 */
 .gh-main-content {
   padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-/* 漸層預覽 */
+/* 預覽區域 */
 .gh-preview-section {
-  background: var(--gh-surface);
-  border-radius: var(--gh-radius);
-  padding: 16px;
-  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .gh-gradient-preview {
-  height: 180px;
-  border-radius: var(--gh-radius);
-  margin-bottom: 16px;
-  background: linear-gradient(180deg, rgb(132, 250, 176) 0%, rgb(143, 211, 244) 100%);
+  height: 100px;
+  border-radius: 8px;
+  border: 1px solid var(--gh-border);
 }
 
-/* 漸層資訊 */
 .gh-gradient-info {
   display: flex;
   justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--gh-border);
-  margin-bottom: 16px;
   font-size: 14px;
-  color: var(--gh-text);
+  color: var(--gh-text-secondary);
 }
 
-/* 顏色停駐點列表 */
+/* 顏色停駐點 */
 .gh-color-stops {
-  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .gh-color-stop {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
-  background: #f9fafb;
-  padding: 8px;
-  border-radius: 4px;
-}
-
-/* 自定義複選框樣式 */
-.gh-color-checkbox {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
-  border: 1px solid var(--gh-border);
-  border-radius: 4px;
-  background: white;
-  cursor: pointer;
-  position: relative;
-  flex-shrink: 0;
-}
-
-.gh-color-checkbox:checked {
-  background: var(--gh-primary);
-  border-color: var(--gh-primary);
-}
-
-.gh-color-checkbox:checked::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%) rotate(45deg);
-  width: 4px;
-  height: 8px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  margin-top: -1px;
 }
 
 .gh-color-preview {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border-radius: 4px;
   border: 1px solid var(--gh-border);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  flex-shrink: 0;
 }
 
 .gh-color-value,
 .gh-stop-position {
-  padding: 6px 8px;
+  padding: 4px 8px;
   border: 1px solid var(--gh-border);
   border-radius: 4px;
-  background: white;
   font-size: 14px;
   color: var(--gh-text);
-  font-family: "SF Mono", Consolas, monospace;
-  outline: none;
+  background: var(--gh-surface);
 }
 
 .gh-color-value {
-  width: 90px;
-  flex-shrink: 0;
+  flex: 1;
 }
 
 .gh-stop-position {
-  width: 50px;
-  text-align: left;
+  width: 60px;
 }
 
-/* CSS 代碼區 */
+/* 代碼輸出 */
 .gh-code-output {
-  background: #f9fafb;
-  border-radius: var(--gh-radius);
+  background: var(--gh-surface);
+  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -250,91 +187,45 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  background: #f3f4f6;
-  border-bottom: 1px solid var(--gh-border);
-}
-
-.gh-code-header span {
+  background: var(--gh-border);
   font-size: 14px;
-  color: var(--gh-text);
+  color: var(--gh-text-secondary);
 }
 
 .gh-copy-btn {
   padding: 4px;
+  background: none;
   border: none;
-  background: transparent;
-  color: var(--gh-text);
   cursor: pointer;
-  opacity: 0.6;
-  transition: var(--gh-transition);
+  color: var(--gh-text-secondary);
 }
 
 .gh-copy-btn:hover {
-  opacity: 1;
+  color: var(--gh-text);
 }
 
 .gh-code-block {
   margin: 0;
   padding: 12px;
-  font-family: "SF Mono", Consolas, monospace;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.4;
   color: var(--gh-text);
-  white-space: pre;
+  white-space: pre-wrap;
 }
 
-/* 選取框 */
-.picker-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.overlay-border {
-  position: absolute;
-  background: var(--gh-primary);
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.picker-overlay.active .overlay-border {
-  opacity: 1;
-}
-
-.overlay-border-top,
-.overlay-border-bottom {
-  height: 2px;
-  width: 100%;
-}
-
-.overlay-border-left,
-.overlay-border-right {
-  width: 2px;
-  height: 100%;
-}
-
-.overlay-border-top {
-  top: 0;
-}
-
-.overlay-border-right {
-  right: 0;
-}
-
-.overlay-border-bottom {
-  bottom: 0;
-}
-
-.overlay-border-left {
-  left: 0;
+/* 高亮元素 */
+.gradient-hunter-highlight {
+  outline: 3px solid var(--gh-success) !important;
+  outline-offset: 2px !important;
+  transition: outline 0.2s ease !important;
+  position: relative !important;
+  z-index: 2147483646 !important;
 }
 
 /* 響應式設計 */
 @media (max-width: 480px) {
-  .gh-toolbar {
+  #gradient-hunter-toolbar {
     top: auto;
     right: 0;
     bottom: 0;
