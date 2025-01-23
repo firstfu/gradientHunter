@@ -26,27 +26,33 @@
 
         <main class="gh-main-content">
           <!-- 漸層預覽區 -->
-          <div class="gh-gradient-preview"></div>
-
-          <!-- 漸層資訊 -->
-          <div class="gh-gradient-info">
-            <span class="gh-gradient-type">線性漸層</span>
-            <span class="gh-gradient-angle">180°</span>
-          </div>
+          <section class="gh-preview-section">
+            <div class="gh-gradient-preview"></div>
+            <div class="gh-gradient-info">
+              <span class="gh-gradient-type">線性漸層</span>
+              <span class="gh-gradient-angle">180°</span>
+            </div>
+          </section>
 
           <!-- 顏色停駐點列表 -->
           <div class="gh-color-stops">
             <div class="gh-color-stop">
               <input type="checkbox" class="gh-color-checkbox" />
               <div class="gh-color-preview" style="background-color: rgb(132, 250, 176)"></div>
-              <input type="text" value="rgb(132, 250, 176)" class="gh-color-value" readonly />
-              <input type="text" value="0%" class="gh-stop-position" readonly />
+              <input type="text" value="rgb(132," class="gh-color-value" readonly />
+              <input type="text" value="250," class="gh-stop-position" readonly />
             </div>
             <div class="gh-color-stop">
               <input type="checkbox" class="gh-color-checkbox" />
               <div class="gh-color-preview" style="background-color: rgb(143, 211, 244)"></div>
-              <input type="text" value="rgb(143, 211, 244)" class="gh-color-value" readonly />
-              <input type="text" value="100%" class="gh-stop-position" readonly />
+              <input type="text" value="rgb(143," class="gh-color-value" readonly />
+              <input type="text" value="211," class="gh-stop-position" readonly />
+            </div>
+            <div class="gh-color-stop">
+              <input type="checkbox" class="gh-color-checkbox" />
+              <div class="gh-color-preview" style="background-color: rgb(85, 98, 112)"></div>
+              <input type="text" value="rgb(85," class="gh-color-value" readonly />
+              <input type="text" value="98," class="gh-stop-position" readonly />
             </div>
           </div>
 
@@ -78,5 +84,8 @@
         <div class="overlay-border overlay-border-left"></div>
       </div>
     </div>
+
+    <!-- 載入 JavaScript -->
+    <script src="picker.js"></script>
   </body>
 </html>
