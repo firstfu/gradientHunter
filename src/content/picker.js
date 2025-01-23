@@ -1,7 +1,6 @@
 // 漸層選取器的主要類
 class GradientPicker {
   constructor() {
-    console.log("[GradientPicker] Initializing...");
     this.isActive = false;
     this.overlay = null;
     this.selectedElement = null;
@@ -14,15 +13,11 @@ class GradientPicker {
   }
 
   init() {
-    console.log("[GradientPicker] Running init...");
     this.createOverlay();
     this.bindMessageListener();
-    console.log("[GradientPicker] Initialization complete");
   }
 
   createOverlay() {
-    console.log("[GradientPicker] Creating overlay...");
-
     // 創建覆蓋層容器
     this.overlay = document.createElement("div");
     this.overlay.id = "gradient-hunter-overlay";
@@ -47,11 +42,9 @@ class GradientPicker {
             left: 0 !important;
             width: 100vw !important;
             height: 100vh !important;
-            background: rgba(0, 0, 0, 0.3) !important;
             z-index: 2147483646 !important;
             cursor: crosshair !important;
             display: none !important;
-            pointer-events: auto !important;
         }
 
         #gradient-hunter-overlay .gradient-hunter-toolbar {
@@ -110,21 +103,27 @@ class GradientPicker {
     // 添加到頁面
     document.head.appendChild(style);
     document.body.appendChild(this.overlay);
-    console.log("[GradientPicker] Overlay created and added to page");
 
     // 綁定事件
     this.bindEvents();
   }
 
   bindEvents() {
-    console.log("[GradientPicker] Binding events...");
-
     // 滑鼠移動事件
     this.overlay.addEventListener("mousemove", e => {
+      // 檢查是否點擊到工具列
+      const toolbar = document.querySelector(".gradient-hunter-toolbar");
+      if (e.target.closest(".gradient-hunter-toolbar")) {
+        return;
+      }
+
+      // 暫時隱藏覆蓋層以獲取底下的元素
+      this.overlay.style.pointerEvents = "none";
       const element = document.elementFromPoint(e.clientX, e.clientY);
+      this.overlay.style.pointerEvents = "auto";
 
       // 移除之前的高亮
-      if (this.selectedElement) {
+      if (this.selectedElement && this.selectedElement !== element) {
         this.selectedElement.classList.remove("gradient-hunter-highlight");
       }
 
@@ -138,7 +137,14 @@ class GradientPicker {
 
     // 點擊事件
     this.overlay.addEventListener("click", e => {
+      // 如果點擊到工具列，不進行處理
+      if (e.target.closest(".gradient-hunter-toolbar")) {
+        return;
+      }
+
+      this.overlay.style.pointerEvents = "none";
       const element = document.elementFromPoint(e.clientX, e.clientY);
+      this.overlay.style.pointerEvents = "auto";
 
       if (this.hasGradient(element)) {
         this.selectedElement = element;
@@ -148,13 +154,11 @@ class GradientPicker {
 
     // 關閉按鈕事件
     document.getElementById("gh-close-picker").addEventListener("click", () => {
-      console.log("[GradientPicker] Close button clicked");
       this.stop();
     });
 
     // 確認選擇按鈕事件
     document.getElementById("gh-confirm-pick").addEventListener("click", () => {
-      console.log("[GradientPicker] Confirm button clicked");
       if (this.selectedElement) {
         const gradientInfo = this.extractGradientInfo(this.selectedElement);
         console.log("[GradientPicker] Gradient selected:", gradientInfo);
@@ -170,9 +174,7 @@ class GradientPicker {
   }
 
   bindMessageListener() {
-    console.log("[GradientPicker] Binding message listener...");
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      console.log("[GradientPicker] Received message:", message);
       if (message.type === "START_PICKER" || message.type === "ACTIVATE_PICKER") {
         this.start();
         sendResponse({ success: true });
@@ -180,17 +182,18 @@ class GradientPicker {
     });
   }
 
+  // 檢查元素是否包含漸層
   hasGradient(element) {
     if (!element) return false;
     const style = window.getComputedStyle(element);
     const hasGradient = style.backgroundImage.includes("gradient");
-    // console.log("[GradientPicker] Checking gradient for element:", element, hasGradient);
     if (hasGradient) {
       console.log("[GradientPicker] Gradient 找到漸層元素:", element);
     }
     return hasGradient;
   }
 
+  // 提取漸層資訊
   extractGradientInfo(element) {
     const style = window.getComputedStyle(element);
     return {
@@ -204,7 +207,6 @@ class GradientPicker {
   }
 
   start() {
-    console.log("[GradientPicker] Starting picker...");
     this.isActive = true;
     if (this.overlay) {
       this.overlay.style.setProperty("display", "block", "important");
@@ -215,7 +217,6 @@ class GradientPicker {
   }
 
   stop() {
-    console.log("[GradientPicker] Stopping picker...");
     this.isActive = false;
     if (this.overlay) {
       this.overlay.style.setProperty("display", "none", "important");
@@ -228,7 +229,6 @@ class GradientPicker {
   }
 
   cleanup() {
-    console.log("[GradientPicker] Cleaning up...");
     if (this.overlay) {
       document.body.removeChild(this.overlay);
       this.overlay = null;
@@ -242,6 +242,4 @@ class GradientPicker {
 }
 
 // 初始化選取器
-console.log("[GradientPicker] Creating instance...");
 const gradientPicker = new GradientPicker();
-console.log("[GradientPicker] Instance created");

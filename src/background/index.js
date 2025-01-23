@@ -97,8 +97,6 @@ async function handleStartPicking() {
       type: "START_PICKER",
       timestamp: Date.now(),
     });
-
-    console.log("[Background] Start picker message sent");
     return { success: true };
   } catch (error) {
     console.error("[Background] Error in handleStartPicking:", error);
