@@ -131,14 +131,21 @@ if (window.gradientPicker) {
 
     getGradient(element) {
       const style = window.getComputedStyle(element);
-      const background = style.background || style.backgroundImage;
+      const properties = [style.background, style.backgroundImage, style.getPropertyValue("background"), style.getPropertyValue("background-image")];
 
-      // 改進的漸層檢測
-      if (background.includes("gradient")) {
-        // 提取完整的漸層字符串
-        const match = background.match(/(linear|radial|conic)-gradient\([^)]+\)/);
-        if (match) {
-          return match[0];
+      for (const prop of properties) {
+        if (!prop) continue;
+
+        // 檢查是否包含漸層
+        if (prop.includes("gradient")) {
+          // 匹配所有類型的漸層
+          const gradientRegex = /(linear|radial|conic)-gradient\s*\([^)]+\)/g;
+          const matches = prop.match(gradientRegex);
+
+          if (matches && matches.length > 0) {
+            // 返回第一個找到的漸層
+            return matches[0];
+          }
         }
       }
       return null;
@@ -224,7 +231,7 @@ if (window.gradientPicker) {
 
   // TODO: 監聽來自擴充功能的消息
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.type === "START_PICKING") {
+    if (request.type === "ACTIVATE_PICKER") {
       window.gradientPicker.activate();
     }
     return true;

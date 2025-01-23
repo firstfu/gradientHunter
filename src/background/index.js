@@ -12,7 +12,7 @@ const injectedTabs = new Set();
 
 // 監聽擴充功能安裝事件
 chrome.runtime.onInstalled.addListener(() => {
-  console.log("Gradient Hunter installed");
+  console.log("插件安裝完成");
 });
 
 // 監聽標籤頁更新事件
@@ -29,9 +29,9 @@ chrome.tabs.onRemoved.addListener(tabId => {
 
 // TODO: 監聽來自彈出窗口的消息
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log("Received message:", request.type);
+  console.log("收到 listen 消息:", request.type);
 
-  if (request.type === "START_PICKING") {
+  if (request.type === "REQUEST_START_PICKING") {
     handleStartPicking()
       .then(response => {
         sendResponse(response);
@@ -57,32 +57,48 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // 處理開始選取的請求
 async function handleStartPicking() {
-  console.log("處理開始選取的請求");
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  console.log("處理請求: handleStartPicking");
 
-  if (!tab) {
-    throw new Error("No active tab found");
-  }
+  try {
+    // 獲取當前視窗
+    const currentWindow = await chrome.windows.getCurrent();
 
-  if (!injectedTabs.has(tab.id)) {
-    // 注入 CSS
-    await chrome.scripting.insertCSS({
-      target: { tabId: tab.id },
-      files: ["src/content/picker.css"],
+    // 在當前視窗中查詢活動標籤
+    const tabs = await chrome.tabs.query({
+      active: true,
+      windowId: currentWindow.id,
     });
 
-    // 注入 JavaScript
-    await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      files: ["src/content/picker.js"],
-    });
+    const tab = tabs[0];
+    if (!tab) {
+      throw new Error("No active tab found");
+    }
 
-    injectedTabs.add(tab.id);
+    // 檢查腳本是否已注入
+    if (!injectedTabs.has(tab.id)) {
+      // 注入 content script
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ["src/content/picker.js"],
+      });
+
+      // 注入 CSS
+      await chrome.scripting.insertCSS({
+        target: { tabId: tab.id },
+        files: ["src/content/picker.css"],
+      });
+
+      // 標記該標籤頁已注入腳本
+      injectedTabs.add(tab.id);
+    }
+
+    // 發送開始選取消息到 content script
+    await chrome.tabs.sendMessage(tab.id, { type: "ACTIVATE_PICKER" });
+    return { success: true };
+  } catch (error) {
+    console.error("Error in handleStartPicking:", error);
+    throw error;
   }
-
-  // 發送開始選取消息
-  await chrome.tabs.sendMessage(tab.id, { type: "START_PICKING" });
-  return { success: true };
 }
 
 // 處理漸層選取完成的請求

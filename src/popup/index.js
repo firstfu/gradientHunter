@@ -42,43 +42,41 @@ function updateUI(gradient) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("選取");
-  // 獲取按鈕元素
-  const pickButton = document.querySelector('.tool-btn[title="開始選取"]');
-  const saveButton = document.querySelector('.tool-btn[title="儲存"]');
-  const settingsButton = document.querySelector('.tool-btn[title="設定"]');
+  try {
+    const pickButton = document.querySelector('.tool-btn[title="開始選取"]');
+    const saveButton = document.querySelector('.tool-btn[title="儲存"]');
+    const settingsButton = document.querySelector('.tool-btn[title="設定"]');
 
-  console.log("==============================");
-  console.log("pickButton", pickButton);
-  console.log("==============================");
+    // TODO: 綁定選取按鈕事件
+    pickButton.addEventListener("click", () => {
+      console.log("綁定選取按鈕事件");
+      chrome.runtime.sendMessage({ type: "REQUEST_START_PICKING" });
+      //   window.close();
+    });
 
-  // TODO: 綁定選取按鈕事件
-  pickButton.addEventListener("click", () => {
-    console.log("開始選取");
-    chrome.runtime.sendMessage({ type: "START_PICKING" });
-    window.close();
-  });
+    //   // 綁定複製按鈕事件
+    //   document.querySelector(".copy-btn").addEventListener("click", () => {
+    //     console.log("複製代碼");
+    //     const code = document.querySelector(".code-block code").textContent;
+    //     console.log("code:", code);
+    //     navigator.clipboard.writeText(code);
+    //   });
 
-  // 綁定複製按鈕事件
-  document.querySelector(".copy-btn").addEventListener("click", () => {
-    console.log("複製代碼");
-    const code = document.querySelector(".code-block code").textContent;
-    console.log("code:", code);
-    navigator.clipboard.writeText(code);
-  });
+    //   // 檢查是否有最近選取的漸層
+    //   chrome.runtime.sendMessage({ type: "GET_LAST_GRADIENT" }, response => {
+    //     console.log("檢查是否有最近選取的漸層");
+    //     if (response && response.gradient) {
+    //       updateUI(response.gradient);
+    //     }
+    //   });
 
-  // 檢查是否有最近選取的漸層
-  chrome.runtime.sendMessage({ type: "GET_LAST_GRADIENT" }, response => {
-    console.log("檢查是否有最近選取的漸層");
-    if (response && response.gradient) {
-      updateUI(response.gradient);
-    }
-  });
-
-  // 監聽來自背景腳本的消息
-  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.type === "UPDATE_GRADIENT" && request.gradient) {
-      updateUI(request.gradient);
-    }
-  });
+    // 監聽來自背景腳本的消息
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      if (request.type === "UPDATE_GRADIENT" && request.gradient) {
+        updateUI(request.gradient);
+      }
+    });
+  } catch (error) {
+    console.error("[ERROR] Error in popup initialization:", error);
+  }
 });
