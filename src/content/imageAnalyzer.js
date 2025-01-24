@@ -46,7 +46,8 @@ class ImageGradientAnalyzer {
   // 顏色採樣
   sampleColors(imageData) {
     const { width, height, data } = imageData;
-    const sampleSize = 20; // 採樣點數
+    const gridSize = 10; // 網格大小
+    const sampleSize = gridSize * gridSize; // 總採樣點數
 
     const horizontalSamples = [];
     const verticalSamples = [];
@@ -54,8 +55,12 @@ class ImageGradientAnalyzer {
 
     // 水平採樣
     for (let i = 0; i < sampleSize; i++) {
-      const x = Math.floor((width / (sampleSize - 1)) * i);
-      const y = Math.floor(height / 2);
+      const gridX = i % gridSize;
+      const gridY = Math.floor(height / 2);
+
+      // 在水平中線附近進行網格採樣
+      const x = Math.floor((width / (gridSize - 1)) * gridX);
+      const y = Math.max(0, Math.min(height - 1, gridY + this.getEdgeIntensity(imageData, x, gridY) * 5));
       const index = (y * width + x) * 4;
       horizontalSamples.push({
         position: i / (sampleSize - 1),
@@ -70,8 +75,11 @@ class ImageGradientAnalyzer {
 
     // 垂直採樣
     for (let i = 0; i < sampleSize; i++) {
-      const x = Math.floor(width / 2);
-      const y = Math.floor((height / (sampleSize - 1)) * i);
+      const gridX = Math.floor(width / 2);
+      const gridY = Math.floor(i / gridSize);
+
+      const x = Math.max(0, Math.min(width - 1, gridX + this.getEdgeIntensity(imageData, gridX, gridY) * 5));
+      const y = Math.floor((height / (gridSize - 1)) * gridY);
       const index = (y * width + x) * 4;
       verticalSamples.push({
         position: i / (sampleSize - 1),
@@ -86,8 +94,11 @@ class ImageGradientAnalyzer {
 
     // 對角線採樣
     for (let i = 0; i < sampleSize; i++) {
-      const x = Math.floor((width / (sampleSize - 1)) * i);
-      const y = Math.floor((height / (sampleSize - 1)) * i);
+      const gridX = i % gridSize;
+      const gridY = Math.floor(i / gridSize);
+
+      const x = Math.floor((width / (gridSize - 1)) * gridX);
+      const y = Math.floor((height / (gridSize - 1)) * gridY);
       const index = (y * width + x) * 4;
       diagonalSamples.push({
         position: i / (sampleSize - 1),
@@ -101,6 +112,49 @@ class ImageGradientAnalyzer {
     }
 
     return { horizontalSamples, verticalSamples, diagonalSamples };
+  }
+
+  // 使用 Sobel 算子計算邊緣強度
+  getEdgeIntensity(imageData, x, y) {
+    const { width, height, data } = imageData;
+
+    // Sobel 算子
+    const sobelX = [
+      [-1, 0, 1],
+      [-2, 0, 2],
+      [-1, 0, 1],
+    ];
+
+    const sobelY = [
+      [-1, -2, -1],
+      [0, 0, 0],
+      [1, 2, 1],
+    ];
+
+    let gx = 0;
+    let gy = 0;
+
+    // 計算 Sobel 梯度
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        const pixelX = Math.max(0, Math.min(width - 1, x + i));
+        const pixelY = Math.max(0, Math.min(height - 1, y + j));
+        const index = (pixelY * width + pixelX) * 4;
+
+        // 使用灰度值計算
+        const gray = data[index] * 0.299 + data[index + 1] * 0.587 + data[index + 2] * 0.114;
+
+        gx += gray * sobelX[i + 1][j + 1];
+        gy += gray * sobelY[i + 1][j + 1];
+      }
+    }
+
+    // 計算梯度強度並歸一化
+    const magnitude = Math.sqrt(gx * gx + gy * gy);
+    const normalizedMagnitude = Math.min(1, magnitude / 255);
+
+    // 返回一個 -1 到 1 之間的值，表示邊緣強度和方向
+    return Math.tanh(normalizedMagnitude * 2) * Math.sign(gx);
   }
 
   // 檢測漸層方向
@@ -165,12 +219,36 @@ class ImageGradientAnalyzer {
 
   // 計算方向評分
   calculateDirectionScore(features) {
-    // 綜合評分標準
-    const smoothnessWeight = 0.4;
-    const consistencyWeight = 0.4;
-    const deltaEWeight = 0.2;
+    // 更新權重配置
+    const weights = {
+      smoothness: 0.35,
+      consistency: 0.35,
+      contrast: 0.15,
+      edgeAlignment: 0.15,
+    };
 
-    return features.smoothness * smoothnessWeight + features.consistency * consistencyWeight + this.calculateAverageDeltaE(features.deltaE) * deltaEWeight;
+    // 計算對比度得分
+    const contrastScore = this.calculateContrastScore(features.deltaE);
+
+    // 計算邊緣對齊得分
+    const edgeAlignmentScore = this.calculateEdgeAlignmentScore(features);
+
+    return features.smoothness * weights.smoothness + features.consistency * weights.consistency + contrastScore * weights.contrast + edgeAlignmentScore * weights.edgeAlignment;
+  }
+
+  // 計算對比度得分
+  calculateContrastScore(deltaE) {
+    if (deltaE.length === 0) return 0;
+    const maxDeltaE = Math.max(...deltaE);
+    return Math.min(maxDeltaE / 50, 1); // 標準化到 0-1 範圍
+  }
+
+  // 計算邊緣對齊得分
+  calculateEdgeAlignmentScore(features) {
+    if (!features.edgeIntensities || features.edgeIntensities.length === 0) return 0;
+
+    // 計算邊緣強度的一致性
+    return features.edgeIntensities.reduce((sum, intensity) => sum + Math.abs(intensity), 0) / features.edgeIntensities.length;
   }
 
   // 計算平滑度
@@ -260,8 +338,8 @@ class ImageGradientAnalyzer {
   // 提取關鍵顏色點
   extractColorStops(samples) {
     const stops = [];
-    // 使用 Lab 色差作為閾值，2.3 是可見差異，5.0 是明顯差異
-    const labThreshold = 5.0;
+    // 動態計算 Lab 色差閾值
+    const labThreshold = this.calculateDynamicThreshold(samples);
     const minStops = 2; // 最少顏色點
     const maxStops = 4; // 最多顏色點
 
@@ -270,7 +348,7 @@ class ImageGradientAnalyzer {
       const { r, g, b, a } = sample.color;
       // 使用 Lab 空間判斷灰色
       const lab = this.rgbToLab(r, g, b);
-      const isGray = Math.abs(lab.a) < 5 && Math.abs(lab.b) < 5;
+      const isGray = this.isGrayColor(lab);
       // 為後續計算儲存 Lab 值
       sample.labColor = lab;
       return a > 0.1 && !isGray;
@@ -346,6 +424,46 @@ class ImageGradientAnalyzer {
     }
 
     return stops;
+  }
+
+  // 計算動態閾值
+  calculateDynamicThreshold(samples) {
+    if (samples.length < 2) return 5.0; // 預設閾值
+
+    // 計算相鄰顏色的差異
+    const differences = [];
+    let maxDiff = 0;
+    let minDiff = Infinity;
+
+    for (let i = 1; i < samples.length; i++) {
+      const current = samples[i].color;
+      const prev = samples[i - 1].color;
+
+      if (current.a < 0.1 || prev.a < 0.1) continue;
+
+      const lab1 = this.rgbToLab(prev.r, prev.g, prev.b);
+      const lab2 = this.rgbToLab(current.r, current.g, current.b);
+      const diff = this.calculateDeltaE(lab1, lab2);
+
+      differences.push(diff);
+      maxDiff = Math.max(maxDiff, diff);
+      minDiff = Math.min(minDiff, diff);
+    }
+
+    if (differences.length === 0) return 5.0;
+
+    // 計算差異的標準差
+    const mean = differences.reduce((sum, diff) => sum + diff, 0) / differences.length;
+    const variance = differences.reduce((sum, diff) => sum + Math.pow(diff - mean, 2), 0) / differences.length;
+    const stdDev = Math.sqrt(variance);
+
+    // 根據顏色差異的分布動態調整閾值
+    return Math.max(2.3, Math.min(mean + stdDev, 10.0));
+  }
+
+  // 判斷是否為灰色
+  isGrayColor(lab) {
+    return Math.abs(lab.a) < 5 && Math.abs(lab.b) < 5 && (lab.L < 10 || lab.L > 90);
   }
 
   // 創建顏色信息對象
