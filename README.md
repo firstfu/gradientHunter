@@ -1,162 +1,141 @@
-# Gradient Hunter - 網頁漸層獵手 🎨
+# Gradient Hunter 🎨
+
+[English](README.md) | [繁體中文](README.zh-TW.md)
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Version](https://img.shields.io/badge/version-0.1.0--beta-orange.svg)
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 
-一款專業的 Chrome 擴充功能，讓你輕鬆擷取網頁上的漸層背景，並即時生成對應的 CSS 代碼。無論是設計師或開發者，都能透過這個工具快速取得漸層資訊，提升工作效率。
+![Gradient Hunter Logo](assets/icons/icon.svg)
 
-## ✨ 核心特色
+A professional Chrome extension for easily capturing gradient backgrounds from web pages and instantly generate corresponding CSS code. Whether you're a designer or developer, this tool helps you quickly obtain gradient information and boost your productivity.
 
-- 🎯 一鍵式漸層擷取：2 分鐘內完成，提升 90% 效率
-- 🎨 全方位漸層支援：
-  - 線性漸層（Linear Gradient）
-  - 環形漸層（Radial Gradient）[即將推出]
-  - 圓錐漸層（Conic Gradient）[規劃中]
-- 📋 智慧化 CSS 生成：
-  - 95% 以上的精確度
-  - 自動添加瀏覽器前綴
-  - 支援降級方案
-- 👀 即時預覽功能：
-  - 懸停預覽
-  - 快速調整
-  - 即時生成
-- 🌈 專業色彩管理：
-  - HEX 色碼
-  - RGB/RGBA
-  - HSL/HSLA
-  - 色彩名稱
+## 核心功能 ✨
 
-## 🚀 快速開始
+- 🎯 One-Click Gradient Capture
+- 🎨 Gradient Support:
+  - Linear Gradient with RGB colors
+  - More gradient types coming soon!
+- 📋 CSS Code Generation:
+  - RGB color format support
+  - Clean and readable output
+- 👀 Real-time Preview:
+  - Hover preview
+  - Quick capture
+- 🌈 Color Format:
+  - RGB/RGBA support
+  - More formats coming soon!
 
-### 線上安裝
+## 🚀 Quick Start
 
-1. 造訪 [Chrome Web Store](https://chrome.google.com/webstore) (即將上架)
-2. 搜尋 "Gradient Hunter"
-3. 點擊「新增至 Chrome」
+### Online Installation
 
-### 開發環境設置
+1. Visit [Chrome Web Store](https://chrome.google.com/webstore) (Coming Soon)
+2. Search for "Gradient Hunter"
+3. Click "Add to Chrome"
+
+### Development Setup
 
 ```bash
-# 複製專案
+# Clone project
 git clone https://github.com/your-username/gradient-hunter.git
 
-# 進入專案目錄
+# Enter project directory
 cd gradient-hunter
-
-# 安裝依賴
-npm install
-
-# 啟動開發環境
-npm run dev
-
-# 建置專案
-npm run build
 ```
 
-### 本地安裝
+### Local Installation
 
-1. 開啟 Chrome，進入 `chrome://extensions/`
-2. 開啟右上角「開發人員模式」
-3. 點擊「載入未封裝項目」
-4. 選取專案中的 `dist` 資料夾
+1. Open Chrome, go to `chrome://extensions/`
+2. Enable "Developer mode" in the top right
+3. Click "Load unpacked"
+4. Select the project root folder
 
-## 💡 使用指南
+## 💡 Usage Guide
 
-1. 點擊工具列的 Gradient Hunter 圖示
-2. 選擇操作模式：
-   - 快速擷取：直接點選目標元素
-   - 進階模式：開啟完整編輯器
-3. 調整參數：
-   - 漸層類型
-   - 角度/方向
-   - 色彩點位置
-4. 複製生成的 CSS 代碼
-5. 直接應用於您的專案
+1. Click the Gradient Hunter icon in the toolbar
+2. Choose operation mode:
+   - Quick Capture: directly select target element
+   - Advanced Mode: open full editor
+3. Adjust parameters:
+   - Gradient type
+   - Angle/direction
+   - Color stop positions
+4. Copy generated CSS code
+5. Apply directly to your project
 
-## 🛠 技術棧
+## 🛠 Tech Stack
 
-- **核心技術**
+- **Core Technologies**
 
   - Chrome Extension MV3
-  - TypeScript 5.0+
-  - Vite 5.0+
+  - JavaScript
+  - CSS3
 
-- **開發工具**
+- **Browser APIs**
+
+  - Chrome Extension API
+  - DOM API
+  - Web Storage API
+
+- **Development Tools**
 
   - ESLint + Prettier
   - Jest + Testing Library
   - Husky + lint-staged
 
-- **效能優化**
+- **Performance Optimization**
   - Tree-shaking
-  - 代碼分割
-  - 非同步載入
-  - Service Worker 快取
+  - Code splitting
+  - Async loading
+  - Service Worker caching
 
-## 🔄 開發工作流程
+## 📈 Version Planning
 
-1. 建立新分支：`feature/*` 或 `fix/*`
-2. 開發並測試功能
-3. 提交程式碼：
+### v0.1.0-beta (Current)
 
-   ```bash
-   git add .
-   git commit -m "feat/fix: 您的更改描述"
-   ```
+- [x] Basic gradient capture
+- [x] CSS code generation
+- [x] Quick preview
+- [x] Local storage
 
-4. 推送分支並建立 PR
+### v1.0.0 (2025 Q1)
 
-## 📈 版本規劃
+- [ ] Visual editor
+- [ ] Radial gradient support
+- [ ] Keyboard shortcuts
+- [ ] Import/Export functionality
 
-### v0.1.0-beta（當前）
+### v2.0.0 (2025 Q2)
 
-- [x] 基礎漸層擷取
-- [x] CSS 代碼生成
-- [x] 快速預覽功能
-- [x] 本地儲存
+- [ ] AI-assisted generation
+- [ ] Community sharing
+- [ ] Cloud sync
+- [ ] Team collaboration
 
-### v1.0.0（2024 Q2）
+## 🤝 Contributing
 
-- [ ] 視覺化編輯器
-- [ ] 環形漸層支援
-- [ ] 快速鍵支援
-- [ ] 匯出/匯入功能
+We welcome all forms of contributions:
 
-### v2.0.0（2024 Q3）
+- 🐛 Bug reports
+- 💡 Feature suggestions
+- 📝 Documentation improvements
+- 💻 Code submissions
 
-- [ ] AI 輔助生成
-- [ ] 社群分享功能
-- [ ] 雲端同步
-- [ ] 團隊協作
+For detailed guidelines, please refer to [CONTRIBUTING.md](CONTRIBUTING.md)
 
-## 🤝 參與貢獻
+## 📄 License
 
-我們歡迎各種形式的貢獻：
+This project is licensed under the [MIT License](LICENSE)
 
-- 🐛 回報問題
-- 💡 提供建議
-- 📝 改善文件
-- 💻 提交程式碼
+## 📮 Contact Us
 
-詳細指南請參考 [CONTRIBUTING.md](CONTRIBUTING.md)
-
-## 📄 授權條款
-
-本專案採用 [MIT 授權](LICENSE)
-
-## 📮 聯絡我們
-
-- 📧 Email：[gradient.hunter@example.com](mailto:gradient.hunter@example.com)
-- 💬 Discord：[Gradient Hunter Community](https://discord.gg/gradienthunter)
-- 🐦 Twitter：[@GradientHunter](https://twitter.com/gradienthunter)
+- 📧 Email: [gradient.hunter@example.com](mailto:gradient.hunter@example.com)
+- 💬 Discord: [Gradient Hunter Community](https://discord.gg/gradienthunter)
+- 🐦 Twitter: [@GradientHunter](https://twitter.com/gradienthunter)
 
 ---
 
-<div align="center">
-
-**Made with ❤️ by Gradient Hunter Team**
+## Made with ❤️ by Gradient Hunter Team
 
 [Website](https://gradienthunter.dev) · [Documentation](https://docs.gradienthunter.dev) · [Report Bug](https://github.com/your-username/gradient-hunter/issues)
-
-</div>
