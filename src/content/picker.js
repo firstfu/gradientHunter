@@ -341,6 +341,7 @@
 
       try {
         const gradientInfo = await this.imageAnalyzer.analyzeGradient(element);
+        this.imageAnalyzer.setColorFormat(this.currentColorFormat); // 確保分析器使用當前的顏色格式
         this.updateGradientUI({
           ...gradientInfo,
           isImage: true,
@@ -676,8 +677,15 @@
           btn.addEventListener("click", () => {
             const newFormat = btn.dataset.format;
             this.currentColorFormat = newFormat;
+
+            // 同步 ImageGradientAnalyzer 的顏色格式
+            this.imageAnalyzer.setColorFormat(newFormat);
+
+            // 更新按鈕狀態
             info.querySelectorAll(".gh-format-btn").forEach(b => b.classList.toggle("active", b === btn));
-            this.updateGradientUI(this.extractGradientInfo(this.selectedElement));
+
+            // 使用保存的漸層信息重新渲染 UI
+            this.updateGradientUI(gradientInfo);
           });
         });
       }
@@ -698,7 +706,12 @@
 
       if (codeBlock && gradientInfo) {
         // 更新代碼顯示
-        const cssCode = `background: ${gradientInfo.originalValue};`;
+        let cssCode;
+        if (this.isImageMode && gradientInfo.gradient) {
+          cssCode = `background: ${this.imageAnalyzer.generateGradientCSS(gradientInfo.gradient.stops, gradientInfo.gradient.angle, this.currentColorFormat)};`;
+        } else {
+          cssCode = `background: ${gradientInfo.originalValue};`;
+        }
         codeBlock.textContent = cssCode;
       }
     }

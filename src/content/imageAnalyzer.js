@@ -3,6 +3,7 @@ class ImageGradientAnalyzer {
   constructor() {
     this.canvas = document.createElement("canvas");
     this.ctx = this.canvas.getContext("2d");
+    this.colorFormat = "rgb"; // 預設使用 RGB 格式
   }
 
   // 分析圖片漸層
@@ -33,7 +34,7 @@ class ImageGradientAnalyzer {
         angle: angle,
         stops: stops,
       },
-      originalValue: this.generateGradientCSS(stops, angle),
+      originalValue: this.generateGradientCSS(stops, angle, this.colorFormat),
       element: {
         tagName: "img",
         className: "",
@@ -198,10 +199,26 @@ class ImageGradientAnalyzer {
   }
 
   // 生成 CSS 漸層
-  generateGradientCSS(stops, angle) {
+  generateGradientCSS(stops, angle, format = "rgb") {
     if (stops.length === 0) return "none";
 
-    const colorStops = stops.map(stop => `${stop.color.rgb} ${stop.position}`).join(", ");
+    // 根據指定的格式選擇對應的顏色值
+    const colorStops = stops
+      .map(stop => {
+        let colorValue;
+        switch (format.toLowerCase()) {
+          case "hsl":
+            colorValue = stop.color.hsl;
+            break;
+          case "hex":
+            colorValue = stop.color.hex;
+            break;
+          default:
+            colorValue = stop.color.rgb;
+        }
+        return stop.position ? `${colorValue} ${stop.position}` : colorValue;
+      })
+      .join(", ");
 
     return `linear-gradient(${angle}, ${colorStops})`;
   }
@@ -288,4 +305,20 @@ class ImageGradientAnalyzer {
   }
 
   window.ImageGradientAnalyzer = ImageGradientAnalyzer;
+
+  // 添加切換顏色格式的方法
+  ImageGradientAnalyzer.prototype.setColorFormat = function (format) {
+    if (["rgb", "hsl", "hex"].includes(format.toLowerCase())) {
+      this.colorFormat = format.toLowerCase();
+      // 返回當前的顏色格式，方便外部確認設置是否成功
+      return this.colorFormat;
+    }
+    // 如果格式無效，保持當前格式不變
+    return this.colorFormat;
+  };
+
+  // 獲取當前顏色格式的方法
+  ImageGradientAnalyzer.prototype.getColorFormat = function () {
+    return this.colorFormat;
+  };
 })();
