@@ -163,6 +163,116 @@
   gap: 12px;
 }
 
+/* 圖片拖放區域 */
+.gh-image-drop-zone {
+  position: relative;
+  border: 2px dashed var(--gh-border);
+  border-radius: var(--gh-radius-sm);
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--gh-transition);
+  background: var(--gh-surface);
+}
+
+.gh-image-drop-zone:hover,
+.gh-image-drop-zone.dragging {
+  border-color: var(--gh-primary-light);
+  background: var(--gh-surface-hover);
+}
+
+.gh-image-drop-zone input[type="file"] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.gh-image-drop-icon {
+  display: inline-flex;
+  padding: 12px;
+  border-radius: 50%;
+  background: var(--gh-bg);
+  color: var(--gh-primary);
+  margin-bottom: 12px;
+  box-shadow: var(--gh-shadow-sm);
+}
+
+.gh-image-drop-text {
+  font-size: 14px;
+  color: var(--gh-text-secondary);
+  margin: 0;
+}
+
+.gh-image-drop-text strong {
+  color: var(--gh-primary);
+  font-weight: 600;
+}
+
+.gh-image-preview {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  border-radius: var(--gh-radius-sm);
+  overflow: hidden;
+  background: var(--gh-surface);
+  border: 1px solid var(--gh-border);
+}
+
+.gh-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: var(--gh-transition);
+}
+
+.gh-image-preview .gh-image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transition: var(--gh-transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.gh-image-preview:hover .gh-image-overlay {
+  opacity: 1;
+}
+
+.gh-image-action {
+  padding: 8px;
+  border-radius: var(--gh-radius-sm);
+  background: var(--gh-bg);
+  color: var(--gh-text);
+  border: 1px solid var(--gh-border);
+  cursor: pointer;
+  transition: var(--gh-transition);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.gh-image-action:hover {
+  background: var(--gh-surface-hover);
+  border-color: var(--gh-primary-light);
+  transform: translateY(-1px);
+}
+
+.gh-image-action svg {
+  width: 16px;
+  height: 16px;
+}
+
 .gh-gradient-preview {
   height: 200px;
   border-radius: var(--gh-radius-sm);

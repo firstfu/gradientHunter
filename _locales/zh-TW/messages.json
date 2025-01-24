@@ -47,6 +47,24 @@
     "copyFailed": {
         "message": "複製失敗:"
     },
+    "dragImageHere": {
+        "message": "拖放圖片到這裡"
+    },
+    "clickToUpload": {
+        "message": "點擊上傳"
+    },
+    "imageAnalyzing": {
+        "message": "分析圖片中..."
+    },
+    "imageAnalysisFailed": {
+        "message": "圖片分析失敗"
+    },
+    "invalidImageFile": {
+        "message": "無效的圖片文件"
+    },
+    "copyGradient": {
+        "message": "複製漸層"
+    },
     "gradientType": {
         "message": "$TYPE$漸層",
         "placeholders": {

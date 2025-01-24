@@ -36,6 +36,7 @@
                 "<all_urls>"
             ],
             "js": [
+                "src/content/imageAnalyzer.js",
                 "src/content/picker.js"
             ],
             "css": [

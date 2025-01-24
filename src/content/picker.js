@@ -117,9 +117,6 @@
   class GradientPicker {
     constructor() {
       this.isActive = false;
-      this.selectedElement = null;
-      this.isDragging = false;
-      this.dragOffset = { x: 0, y: 0 };
       this.currentColorFormat = "rgb"; // 預設顏色格式
 
       // 獲取已注入的 UI 元素
@@ -128,9 +125,18 @@
       this.toolbar = document.getElementById("gradient-hunter-toolbar");
 
       if (!this.root || !this.overlay || !this.toolbar) {
-        // console.error("[GradientPicker] UI 元素未找到");
+        console.error("[GradientPicker] UI 元素未找到");
         return;
       }
+
+      // 初始化圖片分析器和狀態
+      this.imageAnalyzer = new ImageGradientAnalyzer();
+      this.isImageMode = false;
+
+      // 其他狀態初始化
+      this.selectedElement = null;
+      this.isDragging = false;
+      this.dragOffset = { x: 0, y: 0 };
 
       // 保存事件處理函數的引用
       this.boundClickHandler = this.handleClick.bind(this);
@@ -295,6 +301,7 @@
       // 移除之前的高亮
       if (this.selectedElement) {
         this.selectedElement.classList.remove("gradient-hunter-highlight");
+        this.isImageMode = false;
       }
 
       // 遍歷元素列表，找到第一個具有漸層的元素
@@ -302,6 +309,12 @@
         // 跳過工具欄相關元素
         if (element.closest("#gradient-hunter-root")) {
           continue;
+        }
+
+        // 檢查是否為圖片元素
+        if (element.tagName === "IMG") {
+          this.handleImageElement(element);
+          return;
         }
 
         if (this.hasGradient(element)) {
@@ -314,9 +327,105 @@
       }
 
       // 如果沒有找到漸層元素，顯示提示訊息
+      if (!this.isImageMode) {
+        this.showImageUploadUI();
+      }
       this.selectedElement = null;
-      this.updateGradientUI({ notFound: true });
     };
+
+    // 處理圖片元素
+    async handleImageElement(element) {
+      this.selectedElement = element;
+      this.isImageMode = true;
+      element.classList.add("gradient-hunter-highlight");
+
+      try {
+        const gradientInfo = await this.imageAnalyzer.analyzeGradient(element);
+        this.updateGradientUI({
+          ...gradientInfo,
+          isImage: true,
+          imageElement: element,
+        });
+      } catch (error) {
+        console.error("分析圖片時發生錯誤:", error);
+        this.updateGradientUI({ notFound: true });
+      }
+    }
+
+    // 顯示圖片上傳 UI
+    showImageUploadUI() {
+      this.isImageMode = true;
+      const previewSection = document.querySelector(".gh-preview-section");
+      if (!previewSection) return;
+
+      const preview = previewSection.querySelector(".gh-gradient-preview");
+      if (!preview) return;
+
+      preview.innerHTML = `
+        <div class="gh-image-drop-zone" id="gh-image-drop-zone">
+          <input type="file" accept="image/*" id="gh-image-input" />
+          <div class="gh-image-drop-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M4 16L8.586 11.414C9.367 10.633 10.633 10.633 11.414 11.414L16 16M14 14L15.586 12.414C16.367 11.633 17.633 11.633 18.414 12.414L20 14M14 8H14.01M6 20H18C19.1046 20 20 19.1046 20 18V6C20 4.89543 19.1046 4 18 4H6C4.89543 4 4 4.89543 4 6V18C4 19.1046 4.89543 20 6 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <p class="gh-image-drop-text">
+            ${chrome.i18n.getMessage("dragImageHere") || "拖放圖片到這裡"} 或 <strong>${chrome.i18n.getMessage("clickToUpload") || "點擊上傳"}</strong>
+          </p>
+        </div>
+      `;
+
+      this.bindImageUploadEvents();
+    }
+
+    // 綁定圖片上傳相關事件
+    bindImageUploadEvents() {
+      const dropZone = document.getElementById("gh-image-drop-zone");
+      const fileInput = document.getElementById("gh-image-input");
+      if (!dropZone || !fileInput) return;
+
+      dropZone.addEventListener("dragover", e => {
+        e.preventDefault();
+        dropZone.classList.add("dragging");
+      });
+
+      dropZone.addEventListener("dragleave", () => {
+        dropZone.classList.remove("dragging");
+      });
+
+      dropZone.addEventListener("drop", e => {
+        e.preventDefault();
+        dropZone.classList.remove("dragging");
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          this.handleImageFile(files[0]);
+        }
+      });
+
+      fileInput.addEventListener("change", e => {
+        if (e.target.files.length > 0) {
+          this.handleImageFile(e.target.files[0]);
+        }
+      });
+    }
+
+    // 處理圖片文件
+    handleImageFile(file) {
+      if (!file.type.startsWith("image/")) {
+        console.error("不是有效的圖片文件");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          this.handleImageElement(img);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
 
     // 檢查元素是否包含漸層
     hasGradient(element) {
@@ -417,6 +526,29 @@
       const previewSection = document.querySelector(".gh-preview-section");
       const colorStops = document.querySelector(".gh-color-stops");
       const codeBlock = document.querySelector(".gh-code-block code");
+
+      if (!previewSection) return;
+
+      // 如果是圖片模式且有漸層資訊
+      if (gradientInfo?.isImage && gradientInfo?.imageElement) {
+        const preview = previewSection.querySelector(".gh-gradient-preview");
+        if (preview) {
+          preview.innerHTML = `
+            <div class="gh-image-preview">
+              <img src="${gradientInfo.imageElement.src}" alt="Selected image" />
+              <div class="gh-image-overlay">
+                <button class="gh-image-action gh-copy-btn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M8 4v12a2 2 0 002 2h8a2 2 0 002-2V7.242a2 2 0 00-.586-1.414l-2.828-2.828A2 2 0 0015.172 2H10a2 2 0 00-2 2z" stroke="currentColor" stroke-width="2"/>
+                    <path d="M16 18v2a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h2" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                  複製漸層
+                </button>
+              </div>
+            </div>
+          `;
+        }
+      }
 
       if (previewSection) {
         // 更新預覽

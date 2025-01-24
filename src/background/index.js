@@ -146,7 +146,7 @@ async function handleStartPicking() {
       // 注入主要腳本
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
-        files: ["src/content/picker.js"],
+        files: ["src/content/imageAnalyzer.js", "src/content/picker.js"],
       });
 
       // 發送消息到 content script
