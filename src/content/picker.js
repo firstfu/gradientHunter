@@ -1,5 +1,118 @@
 // 使用 IIFE 避免全局變量污染
 (function () {
+  // 顏色工具類
+  class ColorUtils {
+    // RGB 字串轉換為物件
+    static parseRGB(rgb) {
+      const match = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+      if (!match) return null;
+      return {
+        r: parseInt(match[1]),
+        g: parseInt(match[2]),
+        b: parseInt(match[3]),
+        a: match[4] ? parseFloat(match[4]) : 1,
+      };
+    }
+
+    // RGB 轉 HEX
+    static rgbToHex(rgb) {
+      const color = this.parseRGB(rgb);
+      if (!color) return rgb;
+      const r = color.r.toString(16).padStart(2, "0");
+      const g = color.g.toString(16).padStart(2, "0");
+      const b = color.b.toString(16).padStart(2, "0");
+      return `#${r}${g}${b}`;
+    }
+
+    // RGB 轉 HSL
+    static rgbToHSL(rgb) {
+      const color = this.parseRGB(rgb);
+      if (!color) return rgb;
+
+      const r = color.r / 255;
+      const g = color.g / 255;
+      const b = color.b / 255;
+
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      let h,
+        s,
+        l = (max + min) / 2;
+
+      if (max === min) {
+        h = s = 0;
+      } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r:
+            h = (g - b) / d + (g < b ? 6 : 0);
+            break;
+          case g:
+            h = (b - r) / d + 2;
+            break;
+          case b:
+            h = (r - g) / d + 4;
+            break;
+        }
+        h /= 6;
+      }
+
+      return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
+    }
+
+    // 檢查顏色格式
+    static getColorFormat(color) {
+      if (color.startsWith("#")) return "hex";
+      if (color.startsWith("rgb")) return "rgb";
+      if (color.startsWith("hsl")) return "hsl";
+      return "other";
+    }
+
+    // 轉換顏色格式
+    static convertColor(color, targetFormat) {
+      const currentFormat = this.getColorFormat(color);
+
+      // 如果已經是目標格式，直接返回
+      if (currentFormat === targetFormat) return color;
+
+      // 根據目標格式轉換
+      switch (targetFormat) {
+        case "hex":
+          return this.rgbToHex(color);
+        case "hsl":
+          return this.rgbToHSL(color);
+        default:
+          return color;
+      }
+    }
+
+    // 獲取常用顏色名稱
+    static getColorName(color) {
+      const colorNames = {
+        "#ff0000": "紅色",
+        "#00ff00": "綠色",
+        "#0000ff": "藍色",
+        "#ffff00": "黃色",
+        "#ff00ff": "洋紅",
+        "#00ffff": "青色",
+        "#000000": "黑色",
+        "#ffffff": "白色",
+      };
+
+      // 轉換為 hex 格式進行比對
+      const hexColor = this.rgbToHex(color);
+      return colorNames[hexColor.toLowerCase()] || null;
+    }
+
+    // 判斷顏色是否為預設顏色名稱
+    static isNamedColor(color) {
+      const div = document.createElement("div");
+      div.style.color = color;
+      return div.style.color !== "";
+    }
+  }
+
   // 漸層選取器的主要類
   class GradientPicker {
     constructor() {
@@ -7,6 +120,7 @@
       this.selectedElement = null;
       this.isDragging = false;
       this.dragOffset = { x: 0, y: 0 };
+      this.currentColorFormat = "rgb"; // 預設顏色格式
 
       // 獲取已注入的 UI 元素
       this.root = document.getElementById("gradient-hunter-root");
@@ -227,7 +341,6 @@
       return hasGradient;
     }
 
-    // TODO: 提取漸層資訊
     extractGradientInfo(element) {
       const style = window.getComputedStyle(element);
       const backgroundImage = style.backgroundImage;
@@ -257,7 +370,7 @@
             params.shift();
           }
 
-          // 解析顏色停駐點，保持 RGB 值的完整性
+          // 解析顏色停駐點
           gradient.stops = params.map(stop => {
             stop = stop.trim();
 
@@ -265,14 +378,23 @@
             const posMatch = stop.match(/(.*?)(?:\s+(\d+%|\d+px|\d+em|center|top|bottom|left|right))?$/);
 
             if (posMatch) {
+              const color = posMatch[1].trim();
+              const colorInfo = {
+                original: color,
+                rgb: color,
+                hex: ColorUtils.convertColor(color, "hex"),
+                hsl: ColorUtils.convertColor(color, "hsl"),
+                name: ColorUtils.isNamedColor(color) ? color : ColorUtils.getColorName(color),
+              };
+
               return {
-                color: posMatch[1].trim(),
+                color: colorInfo,
                 position: posMatch[2] || null,
               };
             }
 
             return {
-              color: stop,
+              color: { original: stop, rgb: stop },
               position: null,
             };
           });
@@ -409,8 +531,23 @@
         const info = previewSection.querySelector(".gh-gradient-info");
         info.innerHTML = `
           <span class="gh-gradient-type">${chrome.i18n.getMessage("gradientType", [gradientInfo.gradient.type])}</span>
+          <div class="gh-format-buttons">
+            <button class="gh-format-btn ${this.currentColorFormat === "rgb" ? "active" : ""}" data-format="rgb">RGB</button>
+            <button class="gh-format-btn ${this.currentColorFormat === "hex" ? "active" : ""}" data-format="hex">HEX</button>
+            <button class="gh-format-btn ${this.currentColorFormat === "hsl" ? "active" : ""}" data-format="hsl">HSL</button>
+          </div>
           <span class="gh-gradient-angle">${gradientInfo.gradient.angle}</span>
         `;
+
+        // 綁定格式切換按鈕事件
+        info.querySelectorAll(".gh-format-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const newFormat = btn.dataset.format;
+            this.currentColorFormat = newFormat;
+            info.querySelectorAll(".gh-format-btn").forEach(b => b.classList.toggle("active", b === btn));
+            this.updateGradientUI(this.extractGradientInfo(this.selectedElement));
+          });
+        });
       }
 
       if (colorStops && gradientInfo) {
@@ -419,8 +556,8 @@
           .map(
             stop => `
           <div class="gh-color-stop">
-            <div class="gh-color-preview" style="background-color: ${stop.color}"></div>
-            <input type="text" value="${stop.color}${stop.position ? " " + stop.position : ""}" class="gh-color-value" readonly />
+            <div class="gh-color-preview" style="background-color: ${stop.color[this.currentColorFormat]}"></div>
+            <input type="text" value="${stop.color[this.currentColorFormat]}${stop.position ? " " + stop.position : ""}" class="gh-color-value" readonly />
           </div>
         `
           )

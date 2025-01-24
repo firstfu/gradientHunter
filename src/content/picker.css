@@ -379,6 +379,38 @@
 }
 
 /* 更新漸層資訊樣式 */
+
+/* 格式切換按鈕 */
+.gh-format-buttons {
+  display: flex;
+  gap: 4px;
+  padding: 2px;
+  background: var(--gh-surface);
+  border-radius: var(--gh-radius-sm);
+  border: 1px solid var(--gh-border);
+}
+
+.gh-format-btn {
+  padding: 4px 8px;
+  font-size: 12px;
+  border: none;
+  background: transparent;
+  color: var(--gh-text-secondary);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: var(--gh-transition);
+}
+
+.gh-format-btn:hover {
+  color: var(--gh-text);
+  background: var(--gh-surface-hover);
+}
+
+.gh-format-btn.active {
+  background: var(--gh-primary);
+  color: white;
+}
+
 .gh-gradient-info {
   display: flex;
   justify-content: space-between;
