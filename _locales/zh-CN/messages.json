@@ -1,0 +1,58 @@
+{
+    "extensionName": {
+        "message": "Gradient Hunter"
+    },
+    "extensionDescription": {
+        "message": "强大的网页渐变捕获与生成工具"
+    },
+    "noGradientFound": {
+        "message": "未找到渐变"
+    },
+    "tryOtherElement": {
+        "message": "该元素没有渐变效果，请尝试点击其他元素"
+    },
+    "clickAnyGradient": {
+        "message": "点击任意渐变元素"
+    },
+    "findGradientDescription": {
+        "message": "在页面上查找并点击含有渐变效果的元素"
+    },
+    "checkGradientStyle": {
+        "message": "确认元素是否有渐变样式"
+    },
+    "tryClickOther": {
+        "message": "尝试点击其他区域"
+    },
+    "supportMultipleTypes": {
+        "message": "支持多种渐变类型"
+    },
+    "oneClickCopy": {
+        "message": "一键复制 CSS 代码"
+    },
+    "readyToStart": {
+        "message": "准备开始"
+    },
+    "clickToCapture": {
+        "message": "点击以捕获"
+    },
+    "selectAgain": {
+        "message": "重新选择"
+    },
+    "waitingForSelection": {
+        "message": "等待选择渐变"
+    },
+    "clickToGenerateCSS": {
+        "message": "点击页面渐变来生成 CSS"
+    },
+    "copyFailed": {
+        "message": "复制失败:"
+    },
+    "gradientType": {
+        "message": "$TYPE$渐变",
+        "placeholders": {
+            "type": {
+                "content": "$1"
+            }
+        }
+    }
+}

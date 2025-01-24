@@ -1,0 +1,58 @@
+{
+    "extensionName": {
+        "message": "Gradient Hunter"
+    },
+    "extensionDescription": {
+        "message": "A powerful tool for capturing and generating CSS gradients from any website"
+    },
+    "noGradientFound": {
+        "message": "No gradient found"
+    },
+    "tryOtherElement": {
+        "message": "This element has no gradient effect, please try clicking other elements"
+    },
+    "clickAnyGradient": {
+        "message": "Click any gradient element"
+    },
+    "findGradientDescription": {
+        "message": "Find and click elements with gradient effects on the page"
+    },
+    "checkGradientStyle": {
+        "message": "Check if element has gradient style"
+    },
+    "tryClickOther": {
+        "message": "Try clicking other areas"
+    },
+    "supportMultipleTypes": {
+        "message": "Supports multiple gradient types"
+    },
+    "oneClickCopy": {
+        "message": "One-click copy CSS code"
+    },
+    "readyToStart": {
+        "message": "Ready to start"
+    },
+    "clickToCapture": {
+        "message": "Click to capture"
+    },
+    "selectAgain": {
+        "message": "Select again"
+    },
+    "waitingForSelection": {
+        "message": "Waiting for gradient selection"
+    },
+    "clickToGenerateCSS": {
+        "message": "Click page gradient to generate CSS"
+    },
+    "copyFailed": {
+        "message": "Copy failed:"
+    },
+    "gradientType": {
+        "message": "$TYPE$ gradient",
+        "placeholders": {
+            "type": {
+                "content": "$1"
+            }
+        }
+    }
+}

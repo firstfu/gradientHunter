@@ -117,7 +117,7 @@
               </svg>`;
             }, 2000);
           } catch (err) {
-            console.error("複製失敗:", err);
+            console.error(chrome.i18n.getMessage("copyFailed"), err);
           }
         }
       });
@@ -307,8 +307,8 @@
               <div class="gh-empty-state">
                 <div class="gh-empty-state-content">
                   <div class="gh-empty-state-text">
-                    <h2>未找到漸層</h2>
-                    <p>該元素沒有漸層效果，請嘗試點擊其他元素</p>
+                    <h2>${chrome.i18n.getMessage("noGradientFound")}</h2>
+                    <p>${chrome.i18n.getMessage("tryOtherElement")}</p>
                   </div>
                   <div class="gh-empty-state-tips">
                     <span class="gh-tip">
@@ -316,14 +316,14 @@
                         <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5"/>
                         <path d="M12 8V12M12 16H12.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
-                      確認元素是否有漸層樣式
+                      ${chrome.i18n.getMessage("checkGradientStyle")}
                     </span>
                     <span class="gh-tip">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                         <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
                       </svg>
-                      嘗試點擊其他區域
+                      ${chrome.i18n.getMessage("tryClickOther")}
                     </span>
                   </div>
                 </div>
@@ -333,8 +333,8 @@
               <div class="gh-empty-state">
                 <div class="gh-empty-state-content">
                   <div class="gh-empty-state-text">
-                    <h2>點擊任意漸層元素</h2>
-                    <p>在頁面上尋找並點擊含有漸層效果的元素</p>
+                    <h2>${chrome.i18n.getMessage("clickAnyGradient")}</h2>
+                    <p>${chrome.i18n.getMessage("findGradientDescription")}</p>
                   </div>
                   <div class="gh-empty-state-tips">
                     <span class="gh-tip">
@@ -342,14 +342,14 @@
                         <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
                       </svg>
-                      支援多種漸層類型
+                      ${chrome.i18n.getMessage("supportMultipleTypes")}
                     </span>
                     <span class="gh-tip">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                         <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
                       </svg>
-                      一鍵複製 CSS 代碼
+                      ${chrome.i18n.getMessage("oneClickCopy")}
                     </span>
                   </div>
                 </div>
@@ -369,13 +369,13 @@
                     : '<path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5"/><path d="M12 8V16M12 8L8 12M12 8L16 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
                 }
               </svg>
-              <span class="gh-status-text">${gradientInfo?.notFound ? "未找到漸層" : "準備開始"}</span>
+              <span class="gh-status-text">${gradientInfo?.notFound ? chrome.i18n.getMessage("noGradientFound") : chrome.i18n.getMessage("readyToStart")}</span>
             </span>
             <span class="gh-gradient-angle">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              <span class="gh-action-text">${gradientInfo?.notFound ? "重新選取" : "點擊以擷取"}</span>
+              <span class="gh-action-text">${gradientInfo?.notFound ? chrome.i18n.getMessage("selectAgain") : chrome.i18n.getMessage("clickToCapture")}</span>
             </span>
           `;
 
@@ -386,14 +386,16 @@
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                   <path d="M7 4V20M17 4V20M3 8H21M3 16H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
-                <span>${gradientInfo?.notFound ? "未找到漸層" : "等待選取漸層"}</span>
+                <span>${gradientInfo?.notFound ? chrome.i18n.getMessage("noGradientFound") : chrome.i18n.getMessage("waitingForSelection")}</span>
               </div>
             `;
           }
 
           // 清空代碼區域
           if (codeBlock) {
-            codeBlock.innerHTML = `<span class="gh-code-comment">/* ${gradientInfo?.notFound ? "未找到漸層，請重新選取" : "點擊頁面漸層來生成 CSS"} */</span>`;
+            codeBlock.innerHTML = `<span class="gh-code-comment">/* ${
+              gradientInfo?.notFound ? `${chrome.i18n.getMessage("noGradientFound")}, ${chrome.i18n.getMessage("selectAgain")}` : chrome.i18n.getMessage("clickToGenerateCSS")
+            } */</span>`;
           }
 
           return;
@@ -406,7 +408,7 @@
         // 更新漸層資訊
         const info = previewSection.querySelector(".gh-gradient-info");
         info.innerHTML = `
-          <span class="gh-gradient-type">${gradientInfo.gradient.type}漸層</span>
+          <span class="gh-gradient-type">${chrome.i18n.getMessage("gradientType", [gradientInfo.gradient.type])}</span>
           <span class="gh-gradient-angle">${gradientInfo.gradient.angle}</span>
         `;
       }

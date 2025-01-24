@@ -1,0 +1,58 @@
+{
+    "extensionName": {
+        "message": "Gradient Hunter"
+    },
+    "extensionDescription": {
+        "message": "強大的網頁漸層擷取與生成工具"
+    },
+    "noGradientFound": {
+        "message": "未找到漸層"
+    },
+    "tryOtherElement": {
+        "message": "該元素沒有漸層效果，請嘗試點擊其他元素"
+    },
+    "clickAnyGradient": {
+        "message": "點擊任意漸層元素"
+    },
+    "findGradientDescription": {
+        "message": "在頁面上尋找並點擊含有漸層效果的元素"
+    },
+    "checkGradientStyle": {
+        "message": "確認元素是否有漸層樣式"
+    },
+    "tryClickOther": {
+        "message": "嘗試點擊其他區域"
+    },
+    "supportMultipleTypes": {
+        "message": "支援多種漸層類型"
+    },
+    "oneClickCopy": {
+        "message": "一鍵複製 CSS 代碼"
+    },
+    "readyToStart": {
+        "message": "準備開始"
+    },
+    "clickToCapture": {
+        "message": "點擊以擷取"
+    },
+    "selectAgain": {
+        "message": "重新選取"
+    },
+    "waitingForSelection": {
+        "message": "等待選取漸層"
+    },
+    "clickToGenerateCSS": {
+        "message": "點擊頁面漸層來生成 CSS"
+    },
+    "copyFailed": {
+        "message": "複製失敗:"
+    },
+    "gradientType": {
+        "message": "$TYPE$漸層",
+        "placeholders": {
+            "type": {
+                "content": "$1"
+            }
+        }
+    }
+}
