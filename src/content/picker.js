@@ -710,7 +710,18 @@
         if (this.isImageMode && gradientInfo.gradient) {
           cssCode = `background: ${this.imageAnalyzer.generateGradientCSS(gradientInfo.gradient.stops, gradientInfo.gradient.angle, this.currentColorFormat)};`;
         } else {
-          cssCode = `background: ${gradientInfo.originalValue};`;
+          // 根據當前顏色格式生成漸層 CSS
+          const stops = gradientInfo.gradient.stops
+            .map(stop => {
+              const color = stop.color[this.currentColorFormat];
+              if (stop.position) {
+                return `${color} ${stop.position}`;
+              }
+              return color;
+            })
+            .join(", ");
+
+          cssCode = `background: ${gradientInfo.gradient.type}-gradient(${gradientInfo.gradient.angle}, ${stops});`;
         }
         codeBlock.textContent = cssCode;
       }
